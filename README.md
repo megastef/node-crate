@@ -9,7 +9,6 @@ Node.js base DB-Driver for CRATE (www.crate.io)
 
 ```js
 var crate = require('node-crate.js');
-
 ```
 
 ```js
@@ -25,7 +24,7 @@ crate.update
 ```
 
 ```js
-crate.delete
+crate.remove
 ```
 
 ### Blobs
