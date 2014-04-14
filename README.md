@@ -27,7 +27,7 @@ crate.update
 crate.remove
 ```
 
-### Blobs
+#### Blobs
 
 ```js
 crate.insertBlob
