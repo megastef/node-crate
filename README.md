@@ -24,7 +24,7 @@ crate.update
 ```
 
 ```js
-crate.remove
+crate.delete
 ```
 
 #### Blobs
