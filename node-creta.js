@@ -156,7 +156,7 @@ exports.update = function(tableName, options, whereClaus, cb) {
  * @param {string} whereClaus
  * @param {requestCallback} cb
  */
-exports.remove = function(tableName, whereClaus, cb) {
+exports.delete = function(tableName, whereClaus, cb) {
 
 	if (arguments.length < 3) {
 		console.log('missed arguments!');
