@@ -1,7 +1,21 @@
 node-crate
 ==========
 
-Node.js base DB-Driver for CRATE (www.crate.io)
+Node.js base DB-Driver for CRATE (www.crate.io). The intention was to use it with node.js on the server side.
+To make it available in a web browser use [browserify]() 
+
+```
+browserify -r ./node-crate.js:node-crate > bundle.js
+```
+Then you might be able to use it inside of an CRATE-Plug-In HTML page: 
+
+```
+<script src="bundle.js"></script>
+<script>
+  var crate = require('node-crate');
+  crate.execute ('select * from tweets limit 10', window.alert)
+</script>
+```
 
 ## Features: 
 1. Async Interface
