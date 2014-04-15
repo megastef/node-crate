@@ -4,6 +4,9 @@ node-crate
 Node.js base DB-Driver for CRATE (www.crate.io)
 
 ## Installation
+```
+npm install megastef/node-crate
+```
 
 ## Usage
 
