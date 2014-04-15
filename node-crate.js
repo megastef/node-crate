@@ -264,15 +264,6 @@ exports.insertBlobFile = function(tableName, filename, cb) {
  * @param {requestCallback} cb
  */
 exports.getBlob = function(tableName, hashKey, cb) {
-	var blobOptions = {
-		host: options.host,
-		path: '_blob/' + tableName + '/' + hashKey,
-		port: options.port,
-		method: 'GET',
-		headers: {
-			'Connection': 'keep-alive'
-		}
-	};
 
 	callback = function(response) {
 		var buffer = [];
