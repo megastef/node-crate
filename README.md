@@ -2,7 +2,7 @@ node-crate
 ==========
 
 Node.js base DB-Driver for CRATE (www.crate.io). The intention was to use it with node.js on the server side.
-To make it avalable in a web browser user [browserify]() 
+To make it available in a web browser use [browserify]() 
 
 ```
 browserify -r ./node-crate.js:node-crate > bundle.js
