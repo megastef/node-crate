@@ -45,7 +45,7 @@ exports.connect = function(host, port) {
  * @param {string[]} args
  * @param {requestCallback} cbf
  */
-function executeSQL(sql, args, cbf) {
+function executeSql (sql, args, cbf) {
 	callback = function(response) {
 
 		var str = ''
