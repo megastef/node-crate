@@ -11,7 +11,8 @@ npm install megastef/node-crate
 ## Usage
 
 ```js
-var crate = require('node-crate.js');
+var crate = require('node-crate');
+crate.connect('localhost', 4200);
 ```
 
 ```js
