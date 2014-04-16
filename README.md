@@ -1,22 +1,6 @@
 node-crate
 ==========
 
-Node.js base DB-Driver for CRATE (www.crate.io). The intention was to use it with node.js on the server side.
-To make it available in a web browser use [browserify]() 
-
-```
-browserify -r ./node-crate.js:node-crate > bundle.js
-```
-Then you might be able to use it inside of an CRATE-Plug-In HTML page: 
-
-```
-<script src="bundle.js"></script>
-<script>
-  var crate = require('node-crate');
-  crate.execute ('select * from tweets limit 10', window.alert)
-</script>
-```
-
 ## Features: 
 1. Async Interface
 2. Conversion from rows to array of JSON entities
@@ -89,6 +73,24 @@ The callback return a buffer as result - callback (error, buffer)
 crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09', function (err, data) {
   if (!err) fs.writeFileSync ('test.gif', data)
 })
+```
+
+# Use in Webbrowsers JavaScript
+
+The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using [browserify](https://github.com/substack/node-browserify). 
+The resulting bundle.js is included in this repository.
+
+```
+browserify -r ./node-crate.js:node-crate > bundle.js
+```
+Then you might be able to use it inside of an CRATE-Plug-In HTML page: 
+
+```
+<script src="bundle.js"></script>
+<script>
+  var crate = require('node-crate');
+  crate.execute ('select * from tweets limit 10', window.alert)
+</script>
 ```
 
 ## License
