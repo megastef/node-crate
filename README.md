@@ -1,6 +1,8 @@
 node-crate
 ==========
 
+JavaScript / Node.js database driver for [CRATE](http://www.crate.io). 
+
 ## Features: 
 1. Async Interface
 2. Conversion from rows to array of JSON entities
