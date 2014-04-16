@@ -51,7 +51,7 @@ function printResult (err, res1, res2) {
 ```
 ### execute (sql, args, cbf)
 ```js
-crate.execute ("select * from tweetswhere text like ?", ['%crate%'], printResult) 
+crate.execute ("select * from tweets where text like ?", ['%crate%'], printResult) 
 ```
 ### insert (tableName, jsonEntity,  cbf)
 
