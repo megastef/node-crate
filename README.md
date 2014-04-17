@@ -16,8 +16,6 @@ This driver was created during MountainHackathon2014 - I guess there is more tes
 
 ## Roadmap
 1. We plan to support in future waterline.js as ORM on top of this base driver. 
-2. Generate browser version (e.g. to build web based console with Angular.js)
-
 
 ## Installation
 ```
