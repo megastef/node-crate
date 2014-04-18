@@ -29,7 +29,7 @@ var crate = require('node-crate');
 crate.connect('localhost', 4200);
 function printResult (err, res1, res2) { 
   console.log (err)   //  error.message contains message from crate server
-  console.log (res1)  //  Array of JSON Objects with properties named as table column [{col1: 'val1',col2: 'val2'},] ... } 
+  console.log (res1)  //  Array of JSON Objects with properties named as table column [{col1: 'val1',col2: 'val2'},...] 
   console.log (res2)  //  original result from _sql REST endpoint 
 }
 ```
