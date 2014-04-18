@@ -146,19 +146,19 @@ exports.update = function(tableName, options, whereClaus, cb) {
 		return;
 	}
 
-	var preparedOptions = prepareOptionsInsert(options);
+	var preparedOptions = prepareOptions(options);
 
-	var preparedQuery = 'UPDATE ' + tableName + ' SET ' + preparedOptions + ' WHERE ' + whereClaus;
+	var preparedQuery = 'UPDATE ' + tableName + ' SET (' + preparedOptions + ') WHERE ' + whereClause;
 	console.log(preparedQuery);
 	executeSql(preparedQuery, preparedOptions.args, cb);
 }
 
 /**
  * @param {string} tableName
- * @param {string} whereClaus
+ * @param {string} whereClause
  * @param {requestCallback} cb
  */
-exports.delete = function(tableName, whereClaus, cb) {
+exports.delete = function(tableName, whereClause, cb) {
 
 	if (arguments.length < 3) {
 		console.log('missed arguments!');
@@ -171,7 +171,7 @@ exports.delete = function(tableName, whereClaus, cb) {
 	}
 
 	if (!whereClaus) {
-		cb('Where claus is not defined', null);
+		cb('Where clause is not defined', null);
 		return;
 	}
 
