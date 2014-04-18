@@ -1,21 +1,7 @@
 node-crate
 ==========
 
-Node.js base DB-Driver for CRATE (www.crate.io). The intention was to use it with node.js on the server side.
-To make it available in a web browser use [browserify]() 
-
-```
-browserify -r ./node-crate.js:node-crate > bundle.js
-```
-Then you might be able to use it inside of an CRATE-Plug-In HTML page: 
-
-```
-<script src="bundle.js"></script>
-<script>
-  var crate = require('node-crate');
-  crate.execute ('select * from tweets limit 10', window.alert)
-</script>
-```
+JavaScript / Node.js database driver for [CRATE](http://www.crate.io). 
 
 ## Features: 
 1. Async Interface
@@ -30,8 +16,6 @@ This driver was created during MountainHackathon2014 - I guess there is more tes
 
 ## Roadmap
 1. We plan to support in future waterline.js as ORM on top of this base driver. 
-2. Generate browser version (e.g. to build web based console with Angular.js)
-
 
 ## Installation
 ```
@@ -51,7 +35,7 @@ function printResult (err, res1, res2) {
 ```
 ### execute (sql, args, cbf)
 ```js
-crate.execute ("select * from tweetswhere text like ?", ['%crate%'], printResult) 
+crate.execute ("select * from tweets where text like ?", ['%crate%'], printResult) 
 ```
 ### insert (tableName, jsonEntity,  cbf)
 
@@ -89,6 +73,24 @@ The callback return a buffer as result - callback (error, buffer)
 crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09', function (err, data) {
   if (!err) fs.writeFileSync ('test.gif', data)
 })
+```
+
+# Use in Webbrowsers JavaScript
+
+The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using [browserify](https://github.com/substack/node-browserify). 
+The resulting bundle.js is included in this repository.
+
+```
+browserify -r ./node-crate.js:node-crate > bundle.js
+```
+Then you might be able to use it inside of an CRATE-Plug-In HTML page: 
+
+```
+<script src="bundle.js"></script>
+<script>
+  var crate = require('node-crate');
+  crate.execute ('select * from tweets limit 10', window.alert)
+</script>
 ```
 
 ## License
