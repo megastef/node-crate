@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="./bundle.js"></script>
+</head>
+<body>
+	Hi from crate node.js
+<script>
+$( document ).ready(function() {
+    var crate = require ('node-crate')
+    console.log ('crate loaded' + crate)
+	//crate.connect ('localhost', 4200)
+	try {
+		crate.execute ("select * from playstore", function (err, json) {
+			console.log('execute callback')
+			console.log (err)
+			console.log (json)
+		
+		$('#sqloutput').text (JSON.stringify (json)
+
+		window.alert ('HI')
+	});
+	} catch (error) {
+		console.log('Error ' + error + ' ' + JSON.stringify (error))
+	}
+	//console.log('test')
+	
+});
+	
+
+</script>
+<div id="sqloutput">
+</body>
+</html>

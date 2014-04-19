@@ -71,8 +71,8 @@ function executeSql (sql, args, cb) {
 
 				return x;
 			});
-
-			cb(null, jsons, result);
+            result.json = jsons;
+			cb(null, result);
 		});
 
 	}
@@ -317,7 +317,7 @@ function prepareOptionsInsert(options) {
 	return values;
 }
 
-exports.usePromiseStyle = function () {
+
     // adding promise .success ./ .error functions
     exports.execute = D.nodeCapsule (exports.execute)
     exports.insert = D.nodeCapsule (exports.insert)
@@ -326,7 +326,7 @@ exports.usePromiseStyle = function () {
     exports.getBlob = D.nodeCapsule (exports.getBlob)
     exports.insertBlobFile = D.nodeCapsule (exports.insertBlobFile)
     exports.insertBlob = D.nodeCapsule (exports.insertBlob)
-}
+
 
 
 
