@@ -3,6 +3,14 @@ node-crate
 
 JavaScript / Node.js database driver for [CRATE](http://www.crate.io). 
 
+## Latest change
+Optional promise style API - we might make this default (after tests with browser version)
+```
+var crate = require('node-crate');
+crate.usePromiseStyle(); // call .success .error  instead of passing error as first callback parameter
+crate.execute ("select * from tweets limit 1").success (function (res){console.log ('Success', res)})
+```
+
 ## Features: 
 1. Async Interface
 2. Conversion from rows to array of JSON entities
@@ -26,7 +34,8 @@ npm install megastef/node-crate
 
 ```js
 var crate = require('node-crate');
-crate.connect('localhost', 4200);
+crate.connect ('localhost', 4200)
+
 function printResult (err, res1, res2) { 
   console.log (err)   //  error.message contains message from crate server
   console.log (res1)  //  Array of JSON Objects with properties named as table column [{col1: 'val1',col2: 'val2'},...] 
