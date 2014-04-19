@@ -4,10 +4,9 @@ node-crate
 JavaScript / Node.js database driver for [CRATE](http://www.crate.io). 
 
 ## Latest change
-Optional promise style API - we might make this default (after tests with browser version)
+API style changed! - instead of callback with (err,result) you add succes/error handler
 ```
 var crate = require('node-crate');
-crate.usePromiseStyle(); // call .success .error  instead of passing error as first callback parameter
 crate.execute ("select * from tweets limit 1").success (function (res){console.log ('Success', res)})
 ```
 
@@ -35,52 +34,54 @@ npm install megastef/node-crate
 ```js
 var crate = require('node-crate');
 crate.connect ('localhost', 4200)
+crate.execute ("select * from tweets limit 1").success (function (res){
+	// res.json is an array with JSON object, with column names as properties
+	// res.cols are column names
+	// res.rows values as array of arrays
+	// res.duration execution time of query
+	// res.rowcount number of rows
+	console.log ('Success', res.json, res.duration, res.rowcount, res.cols, res.rows)
+})
 
-function printResult (err, res1, res2) { 
-  console.log (err)   //  error.message contains message from crate server
-  console.log (res1)  //  Array of JSON Objects with properties named as table column [{col1: 'val1',col2: 'val2'},...] 
-  console.log (res2)  //  original result from _sql REST endpoint 
-}
 ```
-### execute (sql, args, cbf)
+### execute (sql, args)
 ```js
-crate.execute ("select * from tweets where text like ?", ['%crate%'], printResult) 
+crate.execute ("select * from tweets where text like ?", ['%crate%']).success (console.log).error(console.error) 
 ```
-### insert (tableName, jsonEntity,  cbf)
+### insert (tableName, jsonEntity)
 
 ```js
-crate.insert ('mytable', {columnName1: 'value1', columnName2: 'value2'}, printResult)
+crate.insert ('mytable', {columnName1: 'value1', columnName2: 'value2'}).success (console.log)
 ```
-### update (tableName, jsonEntity, whereClause, cbf)
+### update (tableName, jsonEntity, whereClause)
 ```js
 
 
-crate.update ('mytable', {columnName1: 'value1', columnName2: 'value2'}, 'columnName3=5', printResult)
+crate.update ('mytable', {columnName1: 'value1', columnName2: 'value2'}, 'columnName3=5').success (console.log)
 ```
-### delete (tableName, where, cbf)
+### delete (tableName, where)
 ```js
-crate.delete ('mytable', "columnName1='value1'", printResults)
+crate.delete ('mytable', "columnName1='value1'").success (console.log)
 ```
 
 ## BLOB's
-### insertBlob (tableName, buffer, cbf)
+### insertBlob (tableName, buffer)
 ```js
-crate.insertBlob ('images', buffer, printResult)
+crate.insertBlob ('images', buffer).success (console.log)
 ```
-### insertBlobFile (tableName, fileName, cbf)
+### insertBlobFile (tableName, fileName)
 The callback returns the required haskey to get the image with getBlob.
-Callback signature: - callback (error, hashKey)
 
 ```js
-crate.insertBlobFile ('images', './test.png', function (err, hashKey) {
+crate.insertBlobFile ('images', './test.png').success (function (hashKey) {
     console.log ("Assigned hashkey": hashKey)
 })
 ```
-### getBlob (tableName, hashKey, cbf)
-The callback return a buffer as result - callback (error, buffer)
+### getBlob (tableName, hashKey)
+The callback return a buffer as result - callback (buffer)
 ```js
-crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09', function (err, data) {
-  if (!err) fs.writeFileSync ('test.gif', data)
+crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09').success (function (data) {
+  	fs.writeFileSync ('test.gif', data)
 })
 ```
 
@@ -98,7 +99,7 @@ Then you might be able to use it inside of an CRATE-Plug-In HTML page:
 <script src="bundle.js"></script>
 <script>
   var crate = require('node-crate');
-  crate.execute ('select * from tweets limit 10', window.alert)
+  crate.execute ('select * from tweets limit 10').success (window.alert)
 </script>
 ```
 
