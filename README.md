@@ -34,7 +34,7 @@ npm install megastef/node-crate
 ```js
 var crate = require('node-crate');
 crate.connect ('localhost', 4200)
-crate.execute ("select * from tweets limit 1").success (function (res){
+crate.execute ("select * from tweets text like ? and retweed=? limit 1", ['Frohe Ostern%', true]).success (function (res){
 	// res.json is an array with JSON object, with column names as properties
 	// res.cols are column names
 	// res.rows values as array of arrays
