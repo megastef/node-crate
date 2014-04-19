@@ -22,7 +22,7 @@ THE SOFTWARE.
 */
 
 var http = require('http');
-
+var D = require('d.js')
 var options = {
 	host: 'localhost',
 	path: '/_sql',
@@ -316,3 +316,18 @@ function prepareOptionsInsert(options) {
 	});
 	return values;
 }
+
+exports.usePromiseStyle = function () {
+    // adding promise .success ./ .error functions
+    exports.execute = D.nodeCapsule (exports.execute)
+    exports.insert = D.nodeCapsule (exports.insert)
+    exports.update = D.nodeCapsule (exports.update)
+    exports.delete = D.nodeCapsule (exports.delete)
+    exports.getBlob = D.nodeCapsule (exports.getBlob)
+    exports.insertBlobFile = D.nodeCapsule (exports.insertBlobFile)
+    exports.insertBlob = D.nodeCapsule (exports.insertBlob)
+}
+
+
+
+
