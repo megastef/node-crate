@@ -24,7 +24,7 @@ THE SOFTWARE.
 */
 
 var http = require('http');
-
+var D = require('d.js')
 var options = {
 	host: 'localhost',
 	path: '/_sql',
@@ -319,12 +319,466 @@ function prepareOptionsInsert(options) {
 	return values;
 }
 
+exports.usePromiseStyle = function () {
+    // adding promise .success ./ .error functions
+    exports.execute = D.nodeCapsule (exports.execute)
+    exports.insert = D.nodeCapsule (exports.insert)
+    exports.update = D.nodeCapsule (exports.update)
+    exports.delete = D.nodeCapsule (exports.delete)
+    exports.getBlob = D.nodeCapsule (exports.getBlob)
+    exports.insertBlobFile = D.nodeCapsule (exports.insertBlobFile)
+    exports.insertBlob = D.nodeCapsule (exports.insertBlob)
+}
+
+
+
+
+
 }).call(this,require("buffer").Buffer)
-},{"buffer":4,"crypto":8,"fs":3,"http":14}],"node-crate":[function(require,module,exports){
+},{"buffer":5,"crypto":9,"d.js":3,"fs":4,"http":15}],"node-crate":[function(require,module,exports){
 module.exports=require('tnk1yY');
 },{}],3:[function(require,module,exports){
+(function (process){
+/**
+* attempt of a simple defer/promise library for mobile development
+* @author Jonathan Gotti < jgotti at jgotti dot net>
+* @since 2012-10
+* @version 0.6.0
+* @changelog
+*           - 2013-12-07 - last promise 1.1 specs test passings (thx to wizardwerdna)
+ *                       - reduce promises footprint by unscoping methods that could be
+*           - 2013-10-23 - make it workig across node-webkit contexts
+*           - 2013-07-03 - bug correction in promixify method (thx to adrien gibrat )
+*           - 2013-06-22 - bug correction in nodeCapsule method
+*           - 2013-06-17 - remove unnecessary Array.indexOf method dependency
+*           - 2013-04-18 - add try/catch block around nodeCapsuled methods
+*           - 2013-04-13 - check promises/A+ conformity
+*                        - make some minication optimisations
+*           - 2013-03-26 - add resolved, fulfilled and rejected methods
+*           - 2013-03-21 - browser/node compatible
+*                        - new method nodeCapsule
+*                        - simpler promixify with full api support
+*           - 2013-01-25 - add rethrow method
+*                        - nextTick optimisation -> add support for process.nextTick + MessageChannel where available
+*           - 2012-12-28 - add apply method to promise
+*           - 2012-12-20 - add alwaysAsync parameters and property for default setting
+*/
+(function(undef){
+	"use strict";
 
-},{}],4:[function(require,module,exports){
+	var nextTick
+		, isFunc = function(f){ return ( typeof f === 'function' ); }
+		, isArray = function(a){ return Array.isArray ? Array.isArray(a) : (a instanceof Array); }
+		, isObjOrFunc = function(o){ return !!(o && (typeof o).match(/function|object/)); }
+		, isNotVal = function(v){ return (v === false || v === undef || v === null); }
+		, slice = function(a, offset){ return [].slice.call(a, offset); }
+		, undefStr = 'undefined'
+		, tErr = typeof TypeError === undefStr ? Error : TypeError
+	;
+	if ( (typeof process !== undefStr) && process.nextTick ) {
+		nextTick = process.nextTick;
+	} else if ( typeof MessageChannel !== undefStr ) {
+		var ntickChannel = new MessageChannel(), queue = [];
+		ntickChannel.port1.onmessage = function(){ queue.length && (queue.shift())(); };
+		nextTick = function(cb){
+			queue.push(cb);
+			ntickChannel.port2.postMessage(0);
+		};
+	} else {
+		nextTick = function(cb){ setTimeout(cb, 0); };
+	}
+	function rethrow(e){ nextTick(function(){ throw e;}); }
+
+	/**
+	 * @typedef deferred
+	 * @property {promise} promise
+	 * @method resolve
+	 * @method fulfill
+	 * @method reject
+	 */
+
+	/**
+	 * @typedef {function} fulfilled
+	 * @param {*} value promise resolved value
+	 * @returns {*} next promise resolution value
+	 */
+
+	/**
+	 * @typedef {function} failed
+	 * @param {*} reason promise rejection reason
+	 * @returns {*} next promise resolution value or rethrow the reason
+	 */
+
+	//-- defining unenclosed promise methods --//
+	/**
+	 * same as then without failed callback
+	 * @param {fulfilled} fulfilled callback
+	 * @returns {promise} a new promise
+	 */
+	function promise_success(fulfilled){ return this.then(fulfilled, undef); }
+
+	/**
+	 * same as then with only a failed callback
+	 * @param {failed} failed callback
+	 * @returns {promise} a new promise
+	 */
+	function promise_error(failed){ return this.then(undef, failed); }
+
+
+	/**
+	 * same as then but fulfilled callback will receive multiple parameters when promise is fulfilled with an Array
+	 * @param {fulfilled} fulfilled callback
+	 * @param {failed} failed callback
+	 * @returns {promise} a new promise
+	 */
+	function promise_apply(fulfilled, failed){
+		return this.then(
+			function(a){
+				return isFunc(fulfilled) ? fulfilled.apply(null, isArray(a) ? a : [a]) : (defer.onlyFuncs ? a : fulfilled);
+			}
+			, failed || undef
+		);
+	}
+
+	/**
+	 * cleanup method which will be always executed regardless fulfillment or rejection
+	 * @param {function} cb a callback called regardless of the fulfillment or rejection of the promise which will be called
+	 *                      when the promise is not pending anymore
+	 * @returns {promise} the same promise untouched
+	 */
+	function promise_ensure(cb){
+		function _cb(){ cb(); }
+		this.then(_cb, _cb);
+		return this;
+	}
+
+	/**
+	 * take a single callback which wait for an error as first parameter. other resolution values are passed as with the apply/spread method
+	 * @param {function} cb a callback called regardless of the fulfillment or rejection of the promise which will be called
+	 *                      when the promise is not pending anymore with error as first parameter if any as in node style
+	 *                      callback. Rest of parameters will be applied as with the apply method.
+	 * @returns {promise} a new promise
+	 */
+	function promise_nodify(cb){
+		return this.then(
+			function(a){
+				return isFunc(cb) ? cb.apply(null, isArray(a) ? a.splice(0,0,undefined) && a : [undefined,a]) : (defer.onlyFuncs ? a : cb);
+			}
+			, function(e){
+				return cb(e);
+			}
+		);
+	}
+
+	/**
+	 *
+	 * @param {function} [failed] without parameter will only rethrow promise rejection reason outside of the promise library on next tick
+	 *                            if passed a failed method then will call failed on rejection and throw the error again if failed didn't
+	 * @returns {promise} a new promise
+	 */
+	function promise_rethrow(failed){
+		return this.then(
+			undef
+			, failed ? function(e){ failed(e); throw e; } : rethrow
+		);
+	}
+
+	/**
+	* @param {boolean} [alwaysAsync] if set force the async resolution for this promise independantly of the D.alwaysAsync option
+	* @returns {deferred} defered object with property 'promise' and methods reject,fulfill,resolve (fulfill being an alias for resolve)
+	*/
+	var defer = function (alwaysAsync){
+		var alwaysAsyncFn = (undef !== alwaysAsync ? alwaysAsync : defer.alwaysAsync) ? nextTick : function(fn){fn();}
+			, status = 0 // -1 failed | 1 fulfilled
+			, pendings = []
+			, value
+			/**
+			 * @typedef promise
+			 */
+			, _promise  = {
+				/**
+				 * @param {fulfilled|function} fulfilled callback
+				 * @param {failed|function} failed callback
+				 * @returns {promise} a new promise
+				 */
+				then: function(fulfilled, failed){
+					var d = defer();
+					pendings.push([
+						function(value){
+							try{
+								if( isNotVal(fulfilled)){
+									d.resolve(value);
+								} else {
+									d.resolve(isFunc(fulfilled) ? fulfilled(value) : (defer.onlyFuncs ? value : fulfilled));
+								}
+							}catch(e){
+								d.reject(e);
+							}
+						}
+						, function(err){
+							if ( isNotVal(failed) || ((!isFunc(failed)) && defer.onlyFuncs) ) {
+								d.reject(err);
+							}
+							if ( failed ) {
+								try{ d.resolve(isFunc(failed) ? failed(err) : failed); }catch(e){ d.reject(e);}
+							}
+						}
+					]);
+					status !== 0 && alwaysAsyncFn(execCallbacks);
+					return d.promise;
+				}
+
+				, success: promise_success
+
+				, error: promise_error
+				, otherwise: promise_error
+
+				, apply: promise_apply
+				, spread: promise_apply
+
+				, ensure: promise_ensure
+
+				, nodify: promise_nodify
+
+				, rethrow: promise_rethrow
+
+				, isPending: function(){ return !!(status === 0); }
+
+				, getStatus: function(){ return status; }
+			}
+		;
+		_promise.toSource = _promise.toString = _promise.valueOf = function(){return value === undef ? this : value; };
+
+
+		function execCallbacks(){
+			if ( status === 0 ) {
+				return;
+			}
+			var cbs = pendings, i = 0, l = cbs.length, cbIndex = ~status ? 0 : 1, cb;
+			pendings = [];
+			for( ; i < l; i++ ){
+				(cb = cbs[i][cbIndex]) && cb(value);
+			}
+		}
+
+		/**
+		 * fulfill deferred with given value
+		 * @param {*} val
+		 * @returns {deferred} this for method chaining
+		 */
+		function _resolve(val){
+			var done = false;
+			function once(f){
+				return function(x){
+					if (done) {
+						return undefined;
+					} else {
+						done = true;
+						return f(x);
+					}
+				};
+			}
+			if ( status ) {
+				return this;
+			}
+			try {
+				var then = isObjOrFunc(val) && val.then;
+				if ( isFunc(then) ) { // managing a promise
+					if( val === _promise ){
+						throw new tErr("Promise can't resolve itself");
+					}
+					then.call(val, once(_resolve), once(_reject));
+					return this;
+				}
+			} catch (e) {
+				once(_reject)(e);
+				return this;
+			}
+			alwaysAsyncFn(function(){
+				value = val;
+				status = 1;
+				execCallbacks();
+			});
+			return this;
+		}
+
+		/**
+		 * reject deferred with given reason
+		 * @param {*} Err
+		 * @returns {deferred} this for method chaining
+		 */
+		function _reject(Err){
+			status || alwaysAsyncFn(function(){
+				try{ throw(Err); }catch(e){ value = e; }
+				status = -1;
+				execCallbacks();
+			});
+			return this;
+		}
+		return /**@type deferred */ {
+			promise:_promise
+			,resolve:_resolve
+			,fulfill:_resolve // alias
+			,reject:_reject
+		};
+	};
+
+	defer.deferred = defer.defer = defer;
+	defer.nextTick = nextTick;
+	defer.alwaysAsync = true; // setting this will change default behaviour. use it only if necessary as asynchronicity will force some delay between your promise resolutions and is not always what you want.
+	/**
+	* setting onlyFuncs to false will break promises/A+ conformity by allowing you to pass non undefined/null values instead of callbacks
+	* instead of just ignoring any non function parameters to then,success,error... it will accept non null|undefined values.
+	* this will allow you shortcuts like promise.then('val','handled error'')
+	* to be equivalent of promise.then(function(){ return 'val';},function(){ return 'handled error'})
+	*/
+	defer.onlyFuncs = true;
+
+	/**
+	 * return a fulfilled promise of given value (always async resolution)
+	 * @param {*} value
+	 * @returns {promise}
+	 */
+	defer.resolved = defer.fulfilled = function(value){ return defer(true).resolve(value).promise; };
+
+	/**
+	 * return a rejected promise with given reason of rejection (always async rejection)
+	 * @param {*} reason
+	 * @returns {promise}
+	 */
+	defer.rejected = function(reason){ return defer(true).reject(reason).promise; };
+
+	/**
+	 * return a promise with no resolution value which will be resolved in time ms (using setTimeout)
+	 * @param {int} [time] in ms default to 0
+	 * @returns {promise}
+	 */
+	defer.wait = function(time){
+		var d = defer();
+		setTimeout(d.resolve, time || 0);
+		return d.promise;
+	};
+
+	/**
+	 * return a promise for the return value of function call which will be fulfilled in delay ms or rejected if given fn throw an error
+	 * @param {function} fn
+	 * @param {int} [delay] in ms default to 0
+	 * @returns {promise}
+	 */
+	defer.delay = function(fn, delay){
+		var d = defer();
+		setTimeout(function(){ try{ d.resolve(fn.apply(null)); }catch(e){ d.reject(e); } }, delay || 0);
+		return d.promise;
+	};
+
+	/**
+	 * if given value is not a promise return a fulfilled promise resolved to given value
+	 * @param {*} promise a value or a promise
+	 * @returns {promise}
+	 */
+	defer.promisify = function(promise){
+		if ( promise && isFunc(promise.then) ) { return promise;}
+		return defer.resolved(promise);
+	};
+
+	function multiPromiseResolver(callerArguments, returnPromises){
+		var promises = slice(callerArguments);
+		if ( promises.length === 1 && isArray(promises[0]) ) {
+			if(! promises[0].length ){
+				return defer.fulfilled([]);
+			}
+			promises = promises[0];
+		}
+		var args = []
+			, d = defer()
+			, c = promises.length
+		;
+		if ( !c ) {
+			d.resolve(args);
+		} else {
+			var resolver = function(i){
+				promises[i] = defer.promisify(promises[i]);
+				promises[i].then(
+					function(v){
+						if (! (i in args) ) { //@todo check this is still required as promises can't be resolve more than once
+							args[i] = returnPromises ? promises[i] : v;
+							(--c) || d.resolve(args);
+						}
+					}
+					, function(e){
+						if(! (i in args) ){
+							if( ! returnPromises ){
+								d.reject(e);
+							} else {
+								args[i] = promises[i];
+								(--c) || d.resolve(args);
+							}
+						}
+					}
+				);
+			};
+			for( var i = 0, l = c; i < l; i++ ){
+				resolver(i);
+			}
+		}
+		return d.promise;
+	}
+
+	/**
+	 * return a promise for all given promises / values.
+	 * the returned promises will be fulfilled with a list of resolved value.
+	 * if any given promise is rejected then on the first rejection the returned promised will be rejected with the same reason
+	 * @param {array|...*} [promise] can be a single array of promise/values as first parameter or a list of direct parameters promise/value
+	 * @returns {promise} of a list of given promise resolution value
+	 */
+	defer.all = function(){ return multiPromiseResolver(arguments,false); };
+
+	/**
+	 * return an always fulfilled promise of array<promise> list of promises/values regardless they resolve fulfilled or rejected
+	 * @param {array|...*} [promise] can be a single array of promise/values as first parameter or a list of direct parameters promise/value
+	 *                     (non promise values will be promisified)
+	 * @returns {promise} of the list of given promises
+	 */
+	defer.resolveAll = function(){ return multiPromiseResolver(arguments,true); };
+
+	/**
+	 * transform a typical nodejs async method awaiting a callback as last parameter, receiving error as first parameter to a function that
+	 * will return a promise instead. the returned promise will resolve with normal callback value minus the first error parameter on
+	 * fulfill and will be rejected with that error as reason in case of error.
+	 * @param {object} [subject] optional subject of the method to encapsulate
+	 * @param {function} fn the function to encapsulate if the normal callback should receive more than a single parameter (minus the error)
+	 *                      the promise will resolve with the list or parameters as fulfillment value. If only one parameter is sent to the
+	 *                      callback then it will be used as the resolution value.
+	 * @returns {Function}
+	 */
+	defer.nodeCapsule = function(subject, fn){
+		if ( !fn ) {
+			fn = subject;
+			subject = void(0);
+		}
+		return function(){
+			var d = defer(), args = slice(arguments);
+			args.push(function(err, res){
+				err ? d.reject(err) : d.resolve(arguments.length > 2 ? slice(arguments, 1) : res);
+			});
+			try{
+				fn.apply(subject, args);
+			}catch(e){
+				d.reject(e);
+			}
+			return d.promise;
+		};
+	};
+
+	typeof window !== undefStr && (window.D = defer);
+	typeof module !== undefStr && module.exports && (module.exports = defer);
+
+})();
+
+}).call(this,require("/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":20}],4:[function(require,module,exports){
+
+},{}],5:[function(require,module,exports){
 /**
  * The buffer module from node.js, for the browser.
  *
@@ -1437,7 +1891,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":5,"ieee754":6}],5:[function(require,module,exports){
+},{"base64-js":6,"ieee754":7}],6:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -1560,7 +2014,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	module.exports.fromByteArray = uint8ToBase64
 }())
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -1646,7 +2100,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var Buffer = require('buffer').Buffer;
 var intSize = 4;
 var zeroBuffer = new Buffer(intSize); zeroBuffer.fill(0);
@@ -1683,7 +2137,7 @@ function hash(buf, fn, hashSize, bigEndian) {
 
 module.exports = { hash: hash };
 
-},{"buffer":4}],8:[function(require,module,exports){
+},{"buffer":5}],9:[function(require,module,exports){
 var Buffer = require('buffer').Buffer
 var sha = require('./sha')
 var sha256 = require('./sha256')
@@ -1782,7 +2236,7 @@ each(['createCredentials'
   }
 })
 
-},{"./md5":9,"./rng":10,"./sha":11,"./sha256":12,"buffer":4}],9:[function(require,module,exports){
+},{"./md5":10,"./rng":11,"./sha":12,"./sha256":13,"buffer":5}],10:[function(require,module,exports){
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
  * Digest Algorithm, as defined in RFC 1321.
@@ -1947,7 +2401,7 @@ module.exports = function md5(buf) {
   return helpers.hash(buf, core_md5, 16);
 };
 
-},{"./helpers":7}],10:[function(require,module,exports){
+},{"./helpers":8}],11:[function(require,module,exports){
 // Original code adapted from Robert Kieffer.
 // details at https://github.com/broofa/node-uuid
 (function() {
@@ -1980,7 +2434,7 @@ module.exports = function md5(buf) {
 
 }())
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
  * in FIPS PUB 180-1
@@ -2083,7 +2537,7 @@ module.exports = function sha1(buf) {
   return helpers.hash(buf, core_sha1, 20, true);
 };
 
-},{"./helpers":7}],12:[function(require,module,exports){
+},{"./helpers":8}],13:[function(require,module,exports){
 
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -2164,7 +2618,7 @@ module.exports = function sha256(buf) {
   return helpers.hash(buf, core_sha256, 32, true);
 };
 
-},{"./helpers":7}],13:[function(require,module,exports){
+},{"./helpers":8}],14:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2466,7 +2920,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var http = module.exports;
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
@@ -2605,7 +3059,7 @@ http.STATUS_CODES = {
     510 : 'Not Extended',               // RFC 2774
     511 : 'Network Authentication Required' // RFC 6585
 };
-},{"./lib/request":15,"events":13,"url":32}],15:[function(require,module,exports){
+},{"./lib/request":16,"events":14,"url":33}],16:[function(require,module,exports){
 var Stream = require('stream');
 var Response = require('./response');
 var Base64 = require('Base64');
@@ -2796,7 +3250,7 @@ var indexOf = function (xs, x) {
     return -1;
 };
 
-},{"./response":16,"Base64":17,"inherits":18,"stream":25}],16:[function(require,module,exports){
+},{"./response":17,"Base64":18,"inherits":19,"stream":26}],17:[function(require,module,exports){
 var Stream = require('stream');
 var util = require('util');
 
@@ -2918,7 +3372,7 @@ var isArray = Array.isArray || function (xs) {
     return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{"stream":25,"util":34}],17:[function(require,module,exports){
+},{"stream":26,"util":35}],18:[function(require,module,exports){
 ;(function () {
 
   var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
@@ -2980,7 +3434,7 @@ var isArray = Array.isArray || function (xs) {
 
 }());
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -3005,7 +3459,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -3067,7 +3521,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 (function (global){
 /*! http://mths.be/punycode v1.2.4 by @mathias */
 ;(function(root) {
@@ -3578,7 +4032,7 @@ process.chdir = function (dir) {
 }(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3664,7 +4118,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3751,13 +4205,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":21,"./encode":22}],24:[function(require,module,exports){
+},{"./decode":22,"./encode":23}],25:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3831,7 +4285,7 @@ function onend() {
   });
 }
 
-},{"./readable.js":28,"./writable.js":30,"inherits":18,"process/browser.js":26}],25:[function(require,module,exports){
+},{"./readable.js":29,"./writable.js":31,"inherits":19,"process/browser.js":27}],26:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3960,7 +4414,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"./duplex.js":24,"./passthrough.js":27,"./readable.js":28,"./transform.js":29,"./writable.js":30,"events":13,"inherits":18}],26:[function(require,module,exports){
+},{"./duplex.js":25,"./passthrough.js":28,"./readable.js":29,"./transform.js":30,"./writable.js":31,"events":14,"inherits":19}],27:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -4015,7 +4469,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4058,7 +4512,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./transform.js":29,"inherits":18}],28:[function(require,module,exports){
+},{"./transform.js":30,"inherits":19}],29:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4995,7 +5449,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,require("/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./index.js":25,"/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":19,"buffer":4,"events":13,"inherits":18,"process/browser.js":26,"string_decoder":31}],29:[function(require,module,exports){
+},{"./index.js":26,"/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":20,"buffer":5,"events":14,"inherits":19,"process/browser.js":27,"string_decoder":32}],30:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5201,7 +5655,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./duplex.js":24,"inherits":18}],30:[function(require,module,exports){
+},{"./duplex.js":25,"inherits":19}],31:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5589,7 +6043,7 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./index.js":25,"buffer":4,"inherits":18,"process/browser.js":26}],31:[function(require,module,exports){
+},{"./index.js":26,"buffer":5,"inherits":19,"process/browser.js":27}],32:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5782,7 +6236,7 @@ function base64DetectIncompleteChar(buffer) {
   return incomplete;
 }
 
-},{"buffer":4}],32:[function(require,module,exports){
+},{"buffer":5}],33:[function(require,module,exports){
 /*jshint strict:true node:true es5:true onevar:true laxcomma:true laxbreak:true eqeqeq:true immed:true latedef:true*/
 (function () {
   "use strict";
@@ -6415,14 +6869,14 @@ function parseHost(host) {
 
 }());
 
-},{"punycode":20,"querystring":23}],33:[function(require,module,exports){
+},{"punycode":21,"querystring":24}],34:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -7012,4 +7466,4 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require("/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":33,"/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":19,"inherits":18}]},{},[])
+},{"./support/isBuffer":34,"/usr/local/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":20,"inherits":19}]},{},[])
