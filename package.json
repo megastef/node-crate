@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/megastef/node-crate/issues"
   },
-  "homepage": "https://github.com/megastef/node-crate"
+  "homepage": "https://github.com/megastef/node-crate",
+   "dependencies": {
+        "d.js": "*"
+   }
 }
