@@ -1,7 +1,8 @@
 node-crate
 ==========
 
-JavaScript / Node.js database driver for [CRATE](http://www.crate.io). 
+JavaScript / Node.js database driver for [CRATE Data](http://www.crate.io) -
+_Crate Data is a shared nothing, fully searchable, document oriented cluster datastore._
 
 ## Latest change
 API style changed! - instead of callback with (err,result) you add succes/error handler
