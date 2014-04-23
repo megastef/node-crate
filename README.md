@@ -4,12 +4,6 @@ node-crate
 JavaScript / Node.js database driver for [CRATE Data](http://www.crate.io) -
 _Crate Data is a shared nothing, fully searchable, document oriented cluster datastore._
 
-## Latest change
-API style changed! - instead of callback with (err,result) you add succes/error handler
-```
-var crate = require('node-crate');
-crate.execute ("select * from tweets limit 1").success (function (res){console.log ('Success', res)})
-```
 
 ## Features: 
 1. Async Interface
@@ -20,10 +14,8 @@ crate.execute ("select * from tweets limit 1").success (function (res){console.l
 ## Known limitation
 Nested JSON objects are currently not supported to generate SQL statements (e.g. for insert/update).
 We might change this soon. 
-This driver was created during MountainHackathon2014 - I guess there is more testing required :) 
 
-## Roadmap
-1. We plan to support in future waterline.js as ORM on top of this base driver. 
+
 
 ## Installation
 ```
@@ -103,6 +95,9 @@ Then you might be able to use it inside of an CRATE-Plug-In HTML page:
   crate.execute ('select * from tweets limit 10').success (window.alert)
 </script>
 ```
+
+## Roadmap
+1. We plan to support in future waterline.js as ORM on top of this base driver. 
 
 ## License
 
