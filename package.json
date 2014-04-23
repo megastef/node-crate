@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/megastef/node-crate",
    "dependencies": {
-        "d.js": "*"
+        "d.js": "*",
+        "should": "*",
+        "mocha": "*"
    }
 }
