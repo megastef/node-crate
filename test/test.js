@@ -6,7 +6,7 @@ crate.connect('localhost', 4200)
 describe('#node-crate', function() {
 	it('Create table', function(done) {
 		crate.execute('CREATE TABLE NodeCrateTest (id integer primary key, title string)')
-		.success(function(res) {
+			.success(function(res) {
 				res.rowcount.should.be.exactly(1);
 				done();
 			})
