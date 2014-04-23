@@ -139,7 +139,7 @@ exports.update = function(tableName, options, whereClause, cb) {
 		return;
 	}
 
-	if (!whereClaus) {
+	if (!whereClause) {
 		cb('Where claus is not defined', null);
 		return;
 	}
@@ -147,7 +147,7 @@ exports.update = function(tableName, options, whereClause, cb) {
 	var preparedOptions = prepareOptionsInsert(options);
 
 	var preparedQuery = 'UPDATE ' + tableName + ' SET ' + preparedOptions + ' WHERE ' + whereClause;
-	console.log(preparedQuery);
+
 	executeSql(preparedQuery, preparedOptions.args, cb);
 }
 
@@ -176,7 +176,7 @@ exports.delete = function(tableName, whereClause, cb) {
 	var preparedOptions = prepareOptionsInsert(options);
 
 	var preparedQuery = 'DELETE FROM ' + tableName + ' WHERE ' + whereClause;
-	console.log(preparedQuery);
+
 	executeSql(preparedQuery, [], cb);
 }
 
