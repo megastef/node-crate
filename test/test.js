@@ -4,10 +4,9 @@ var crate = require('../node-crate'),
 crate.connect('localhost', 4200)
 
 describe('#node-crate', function() {
-  it('Create table', function(done) {
-
+	it('Create table', function(done) {
 		crate.execute('CREATE TABLE NodeCrateTest (id integer primary key, title string)')
-			.success(function(res) {
+		.success(function(res) {
 				res.rowcount.should.be.exactly(1);
 				done();
 			})
@@ -49,7 +48,6 @@ describe('#node-crate', function() {
 		}, 5000);
 
 	})
-
 
 	it('Update', function(done) {
 
@@ -109,6 +107,5 @@ describe('#node-crate', function() {
 			.error(function(err) {
 				done(err);
 			})
-
 	})
 })
