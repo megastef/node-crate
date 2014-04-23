@@ -144,9 +144,9 @@ exports.update = function(tableName, options, whereClause, cb) {
 		return;
 	}
 
-	var preparedOptions = prepareOptions(options);
+	var preparedOptions = prepareOptionsInsert(options);
 
-	var preparedQuery = 'UPDATE ' + tableName + ' SET (' + preparedOptions + ') WHERE ' + whereClause;
+	var preparedQuery = 'UPDATE ' + tableName + ' SET ' + preparedOptions + ' WHERE ' + whereClause;
 	console.log(preparedQuery);
 	executeSql(preparedQuery, preparedOptions.args, cb);
 }
