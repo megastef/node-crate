@@ -1,79 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Node-crate : Node.js base DB-Driver for CRATE (www.crate.io)" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Node-crate by megastef</title>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Node-crate</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Node-crate</h1>
+        <p class="header">Node.js base DB-Driver for CRATE (www.crate.io)</p>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/megastef/node-crate">View on GitHub</a>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/megastef/node-crate/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/megastef/node-crate/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/megastef/node-crate">View On GitHub</a></li>
+        </ul>
 
-          <h1 id="project_title">Node-crate</h1>
-          <h2 id="project_tagline">Node.js base DB-Driver for CRATE (www.crate.io)</h2>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/megastef">megastef</a></p>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/megastef/node-crate/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/megastef/node-crate/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+      </header>
+      <section>
+        <h1>
+<a name="node-crate" class="anchor" href="#node-crate"><span class="octicon octicon-link"></span></a>node-crate</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>JavaScript / Node.js database driver for <a href="http://www.crate.io">CRATE Data</a> -
+<em>Crate Data is a shared nothing, fully searchable, document oriented cluster datastore.</em></p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features:</h2>
+
+<ol>
+<li>Async Interface</li>
+<li>Conversion from rows to array of JSON entities</li>
+<li>Automatic build of SQL statements from JSON or full control with SQL String with placeholders and arguments </li>
+<li>Support for BLOB objects (e.g. for image uploads) with inbuilt key generation</li>
+</ol><h2>
+<a name="known-limitation" class="anchor" href="#known-limitation"><span class="octicon octicon-link"></span></a>Known limitation</h2>
+
+<p>Nested JSON objects are currently not supported to generate SQL statements (e.g. for insert/update).
+We might change this soon. </p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<pre><code>npm install megastef/node-crate
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">crate</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'node-crate'</span><span class="p">);</span>
+<span class="nx">crate</span><span class="p">.</span><span class="nx">connect</span> <span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span> <span class="mi">4200</span><span class="p">)</span>
+<span class="nx">crate</span><span class="p">.</span><span class="nx">execute</span> <span class="p">(</span><span class="s2">"select * from tweets where text like ? and retweed=? limit 1"</span><span class="p">,</span> <span class="p">[</span><span class="s1">'Frohe Ostern%'</span><span class="p">,</span> <span class="kc">true</span><span class="p">]).</span><span class="nx">success</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">res</span><span class="p">){</span>
+    <span class="c1">// res.json is an array with JSON object, with column names as properties</span>
+    <span class="c1">// res.cols are column names</span>
+    <span class="c1">// res.rows values as array of arrays</span>
+    <span class="c1">// res.duration execution time of query</span>
+    <span class="c1">// res.rowcount number of rows</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="p">(</span><span class="s1">'Success'</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">duration</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">rowcount</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">cols</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">rows</span><span class="p">)</span>
+<span class="p">})</span>
+
+</pre></div>
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<a name="execute-sql-args" class="anchor" href="#execute-sql-args"><span class="octicon octicon-link"></span></a>execute (sql, args)</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">execute</span> <span class="p">(</span><span class="s2">"select * from tweets where text like ?"</span><span class="p">,</span> <span class="p">[</span><span class="s1">'%crate%'</span><span class="p">]).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">).</span><span class="nx">error</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> 
+</pre></div>
 
 <h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<a name="insert-tablename-jsonentity" class="anchor" href="#insert-tablename-jsonentity"><span class="octicon octicon-link"></span></a>insert (tableName, jsonEntity)</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">insert</span> <span class="p">(</span><span class="s1">'mytable'</span><span class="p">,</span> <span class="p">{</span><span class="nx">columnName1</span><span class="o">:</span> <span class="s1">'value1'</span><span class="p">,</span> <span class="nx">columnName2</span><span class="o">:</span> <span class="s1">'value2'</span><span class="p">}).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
+</pre></div>
 
 <h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<a name="update-tablename-jsonentity-whereclause" class="anchor" href="#update-tablename-jsonentity-whereclause"><span class="octicon octicon-link"></span></a>update (tableName, jsonEntity, whereClause)</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<div class="highlight highlight-js"><pre>
+
+<span class="nx">crate</span><span class="p">.</span><span class="nx">update</span> <span class="p">(</span><span class="s1">'mytable'</span><span class="p">,</span> <span class="p">{</span><span class="nx">columnName1</span><span class="o">:</span> <span class="s1">'value1'</span><span class="p">,</span> <span class="nx">columnName2</span><span class="o">:</span> <span class="s1">'value2'</span><span class="p">},</span> <span class="s1">'columnName3=5'</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="delete-tablename-where" class="anchor" href="#delete-tablename-where"><span class="octicon octicon-link"></span></a>delete (tableName, where)</h3>
+
+<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="k">delete</span> <span class="p">(</span><span class="s1">'mytable'</span><span class="p">,</span> <span class="s2">"columnName1='value1'"</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
+</pre></div>
+
+<h2>
+<a name="blobs" class="anchor" href="#blobs"><span class="octicon octicon-link"></span></a>BLOB's</h2>
+
+<h3>
+<a name="insertblob-tablename-buffer" class="anchor" href="#insertblob-tablename-buffer"><span class="octicon octicon-link"></span></a>insertBlob (tableName, buffer)</h3>
+
+<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">insertBlob</span> <span class="p">(</span><span class="s1">'images'</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="insertblobfile-tablename-filename" class="anchor" href="#insertblobfile-tablename-filename"><span class="octicon octicon-link"></span></a>insertBlobFile (tableName, fileName)</h3>
+
+<p>The callback returns the required haskey to get the image with getBlob.</p>
+
+<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">insertBlobFile</span> <span class="p">(</span><span class="s1">'images'</span><span class="p">,</span> <span class="s1">'./test.png'</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">hashKey</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="p">(</span><span class="s2">"Assigned hashkey"</span><span class="o">:</span> <span class="nx">hashKey</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+
+<h3>
+<a name="getblob-tablename-hashkey" class="anchor" href="#getblob-tablename-hashkey"><span class="octicon octicon-link"></span></a>getBlob (tableName, hashKey)</h3>
+
+<p>The callback return a buffer as result - callback (buffer)</p>
+
+<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">getBlob</span> <span class="p">(</span><span class="s1">'f683e0c9abcbf518704af66c6195bfd3ff121f09'</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span> <span class="p">(</span><span class="s1">'test.gif'</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+
+<h1>
+<a name="use-in-webbrowsers-javascript" class="anchor" href="#use-in-webbrowsers-javascript"><span class="octicon octicon-link"></span></a>Use in Webbrowsers JavaScript</h1>
+
+<p>The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using <a href="https://github.com/substack/node-browserify">browserify</a>. 
+The resulting bundle.js is included in this repository.</p>
+
+<pre><code>browserify -r ./node-crate.js:node-crate &gt; bundle.js
+</code></pre>
+
+<p>Then you might be able to use it inside of an CRATE-Plug-In HTML page: </p>
+
+<pre><code>&lt;script src="bundle.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  var crate = require('node-crate');
+  crate.execute ('select * from tweets limit 10').success (window.alert)
+&lt;/script&gt;
+</code></pre>
+
+<h2>
+<a name="roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
+
+<ol>
+<li>We plan to support in future waterline.js as ORM on top of this base driver. </li>
+</ol><h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>The MIT License(MIT)
+Copyright(C) 2014 by Stefan Thies, Igor Likhomanov</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files(the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>
       </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Node-crate maintained by <a href="https://github.com/megastef">megastef</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
-
-    
-
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
