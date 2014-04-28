@@ -1,7 +1,9 @@
 node-crate
 ==========
 
-JavaScript / Node.js database driver for [CRATE Data](http://www.crate.io) -
+ 
+[![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
+
 _Crate Data is a shared nothing, fully searchable, document oriented cluster datastore._
 
 
