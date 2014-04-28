@@ -20,8 +20,17 @@ We might change this soon.
 
 
 ## Installation
+
 ```
 npm install megastef/node-crate
+```
+
+## Test
+When a crate instance is running on http://localhost:4200 you can use mocha based test (test/test.js).
+Test actions: create table, insert, select, update, delete and drop table.  
+
+```
+npm test 
 ```
 
 ## Usage
