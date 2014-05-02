@@ -5,7 +5,7 @@ node-crate
 [![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
 &nbsp;[![Build Status](https://drone.io/github.com/megastef/node-crate/status.png)](https://drone.io/github.com/megastef/node-crate/latest)
 
-_Crate Data is a shared nothing, fully searchable, document oriented cluster datastore._
+_[Crate Data](http://crate.io) is a shared nothing, fully searchable, document oriented cluster datastore._
 
 
 ## Features: 
