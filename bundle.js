@@ -182,6 +182,30 @@ exports.delete = function(tableName, whereClause, cb) {
 	executeSql(preparedQuery, [], cb);
 }
 
+/**
+ * @param {string} tableName
+ * @param {string} whereClause
+ * @param {requestCallback} cb
+ */
+exports.drop = function(tableName, cb) {
+
+	if (!tableName) {
+		cb('Table name is not specified', null);
+		return;
+	}
+
+	if (!cb) {
+		cb('Where clause is not defined', null);
+		return;
+	}
+
+	
+
+	var preparedQuery = 'DROP TABLE '+tableName;
+
+	executeSql(preparedQuery, [], cb);
+}
+
 /*
     if 1 args pass - invalid args
     if 2 args pass - 1st: sql, 2: callbak
@@ -319,7 +343,20 @@ function prepareOptionsInsert(options) {
 	return values;
 }
 
-
+/**
+ * @param {object} schema like: {person: {name: 'string', age: 'integer'}}
+ */
+exports.create = function (schema, cbf)
+{
+	var cols = []
+	var tableName = Object.keys(schema)[0];
+	for (key in schema[tableName])
+	{
+		cols.push (key + ' ' + schema[tableName][key])
+	}
+	var statement = "CREATE TABLE " + tableName +  " (" + cols + ")"
+	executeSql (statement, [], cbf)
+}
     // adding promise .success ./ .error functions
     exports.execute = D.nodeCapsule (exports.execute)
     exports.insert = D.nodeCapsule (exports.insert)
@@ -328,7 +365,8 @@ function prepareOptionsInsert(options) {
     exports.getBlob = D.nodeCapsule (exports.getBlob)
     exports.insertBlobFile = D.nodeCapsule (exports.insertBlobFile)
     exports.insertBlob = D.nodeCapsule (exports.insertBlob)
-
+    exports.create = D.nodeCapsule (exports.create)
+    exports.drop = D.nodeCapsule (exports.drop)
 
 
 
