@@ -5,7 +5,8 @@ crate.connect('localhost', 4200)
 
 describe('#node-crate', function() {
 	it('Create table', function(done) {
-		crate.execute('CREATE TABLE NodeCrateTest (id integer primary key, title string)')
+		schema = {NodeCrateTest: {id: 'integer primary key', title: 'string'}}
+		crate.create (schema)
 			.success(function(res) {
 				res.rowcount.should.be.exactly(1);
 				done();
@@ -99,7 +100,7 @@ describe('#node-crate', function() {
 
 	it('Delete table', function(done) {
 
-		crate.execute('DROP TABLE NodeCrateTest')
+		crate.drop('NodeCrateTest')
 			.success(function(res) {
 				res.rowcount.should.be.exactly(1);
 				done();

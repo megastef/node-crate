@@ -55,6 +55,17 @@ crate.execute ("select * from tweets where text like ?", ['%crate%']).success (c
 ```
 ### insert (tableName, jsonEntity)
 
+### create (tableName, where)
+```js
+var scheme = {book: {id: 'integer primary key', title: 'string', author: 'string'}}
+crate.create (scheme).success (console.log)
+```
+
+### drop (tableName)
+```js
+crate.delete ('mytable').success (console.log)
+```
+
 ```js
 crate.insert ('mytable', {columnName1: 'value1', columnName2: 'value2'}).success (console.log)
 ```
@@ -64,6 +75,8 @@ crate.insert ('mytable', {columnName1: 'value1', columnName2: 'value2'}).success
 
 crate.update ('mytable', {columnName1: 'value1', columnName2: 'value2'}, 'columnName3=5').success (console.log)
 ```
+
+
 ### delete (tableName, where)
 ```js
 crate.delete ('mytable', "columnName1='value1'").success (console.log)
