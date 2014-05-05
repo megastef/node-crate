@@ -54,6 +54,9 @@ crate.execute ("select * from tweets where text like ? and retweed=? limit 1", [
 crate.execute ("select * from tweets where text like ?", ['%crate%']).success (console.log).error(console.error) 
 ```
 ### insert (tableName, jsonEntity)
+```js
+crate.insert ('mytable', {columnName1: 'value1', columnName2: 'value2'}).success (console.log)
+```
 
 ### create (tableName, where)
 ```js
@@ -66,13 +69,9 @@ crate.create (scheme).success (console.log)
 crate.delete ('mytable').success (console.log)
 ```
 
-```js
-crate.insert ('mytable', {columnName1: 'value1', columnName2: 'value2'}).success (console.log)
-```
+
 ### update (tableName, jsonEntity, whereClause)
 ```js
-
-
 crate.update ('mytable', {columnName1: 'value1', columnName2: 'value2'}, 'columnName3=5').success (console.log)
 ```
 
