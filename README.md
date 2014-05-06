@@ -66,7 +66,7 @@ crate.create (scheme).success (console.log)
 
 ### drop (tableName)
 ```js
-crate.delete ('mytable').success (console.log)
+crate.drop ('mytable').success (console.log)
 ```
 
 
