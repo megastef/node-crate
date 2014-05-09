@@ -23,7 +23,7 @@ We might change this soon.
 ## Installation
 
 ```
-npm install megastef/node-crate
+npm install node-crate
 ```
 
 ## Test
