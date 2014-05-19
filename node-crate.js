@@ -21,16 +21,79 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+
+
+/* CRATE TYPES
+Id's of all currently available data types:
+According to https://github.com/crate/crate/blob/9796dbc9104f47a97f7cc8d92e1fa98ae84e93a0/docs/sql/rest.txt#L77
+
+===== ===================
+    Id Data Type
+===== ===================
+    0 Null
+----- -------------------
+    1 Not Supported
+----- -------------------
+    2 Byte
+----- -------------------
+    3 Boolean
+----- -------------------
+    4 String
+----- -------------------
+    5 Ip
+----- -------------------
+    6 Double
+----- -------------------
+    7 Float
+----- -------------------
+    8 Short
+----- -------------------
+    9 Integer
+----- -------------------
+    10 Long
+----- -------------------
+    11 Timestamp
+----- -------------------
+    12 Object
+----- -------------------
+    13 GeoPoint (Double[])
+----- -------------------
+    100 Array
+----- -------------------
+    101 Set
+===== ===================
+*/
+
+var crateTypes = {
+    NULL:           0,
+    NOT_SUPPORTED:  1,
+    BYTE:           2,
+    BOOLEAN:        3,
+    STRING:         4,
+    IP:             5,
+    DOUBLE:         6,
+    FLOAT:          7,
+    SHORT:          8,
+    INTEGER:        9,
+    LONG:           10,
+    TIMESTAMP:      11,
+    OBJECT:         12,
+    GEO_POINT:      13,
+    ARRAY:          100,
+    SET:            101
+}
+exports.types =  crateTypes;
+var Type = require('type-of-is');
 var http = require('http');
 var D = require('d.js')
 var options = {
-	host: 'localhost',
-	path: '/_sql',
-	port: '4200',
-	method: 'POST',
-	headers: {
-		'Connection': 'keep-alive'
-	}
+    host: 'localhost',
+    path: '/_sql?types',
+    port: '4200',
+    method: 'POST',
+    headers: {
+        'Connection': 'keep-alive'
+    }
 };
 
 var qMarks = '?';
@@ -55,20 +118,25 @@ function executeSql (sql, args, cb) {
 		});
 
 		response.on('end', function() {
-
 			var result = JSON.parse(str);
 
 			if (result.error) {
-				cb(result.error, null, null);
+                console.log('error:' + sql)
+				if (cb) cb(result.error, null, null);
 				return;
 			}
 
 			var jsons = result.rows.map(function(e) {
 				var x = {};
-				for (var i = 0; i < result.cols.length; i++) {
-					x[result.cols[i]] = e[i];
+				for (var i = 0; i < result.cols.length; i++)
+                {
+                    if (result.col_types && result.col_types[i] === crateTypes.TIMESTAMP)
+                    {
+                        x[result.cols[i]] = new Date (e[i]);
+                    }  else {
+                        x[result.cols[i]] = e[i];
+                    }
 				}
-
 				return x;
 			});
             result.json = jsons;
@@ -140,7 +208,7 @@ exports.update = function(tableName, options, whereClause, cb) {
 	}
 
 	if (!whereClause) {
-		cb('Where claus is not defined', null);
+		cb('Where clause is not defined', null);
 		return;
 	}
 
@@ -322,9 +390,16 @@ function prepareOptions(options) {
 		return qMarks;
 	});
 	values.args = keys.map(function(i) {
-		return options[i];
+		return getValueByType (options[i]);
 	});
 	return values;
+}
+
+function getValueByType (v)
+{
+    if (Type.is (v, Date))
+        return v.getTime()
+    else return v;
 }
 
 /**
@@ -336,7 +411,7 @@ function prepareOptionsInsert(options) {
 	var values = {};
 	var keys = Object.keys(options);
 	values = keys.map(function(i) {
-		return i + ' = \'' + options[i] + '\'';
+		return i + ' = \'' + getValueByType (options[i]) + '\'';
 	});
 	return values;
 }

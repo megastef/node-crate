@@ -18,8 +18,6 @@ _[Crate Data](http://crate.io) is a shared nothing, fully searchable, document o
 Nested JSON objects are currently not supported to generate SQL statements (e.g. for insert/update).
 We might change this soon. 
 
-
-
 ## Installation
 
 ```
@@ -40,11 +38,12 @@ npm test
 var crate = require('node-crate');
 crate.connect ('localhost', 4200)
 crate.execute ("select * from tweets where text like ? and retweed=? limit 1", ['Frohe Ostern%', true]).success (function (res){
-	// res.json is an array with JSON object, with column names as properties
+	// res.json is an array with JSON object, with column names as properties, TIMESTAMP is converted to Date for crate V0.38+
 	// res.cols are column names
 	// res.rows values as array of arrays
 	// res.duration execution time of query
 	// res.rowcount number of rows
+	// res.col_types type of column, e.g. res.col_types[i] == crate.type.TIMESTAMP
 	console.log ('Success', res.json, res.duration, res.rowcount, res.cols, res.rows)
 })
 
