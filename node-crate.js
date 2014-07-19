@@ -123,7 +123,7 @@ function executeSql (sql, args, cb) {
 		});
 
 		response.on('end', function() {
-			var result = null;
+			var result = {};
 			try {
 				result = JSON.parse(str);
 			} catch (ex) {
@@ -131,7 +131,11 @@ function executeSql (sql, args, cb) {
 				if (cb) cb(ex, null, null);
 				return;
 			}
-			
+			if (!result.rows) // || /CREATE BLOB/im.test (sql))
+			{
+				// workaround CRATE does not return a row when it creates a BLOB
+				result.rows=[];
+			}
 
 			var jsons = result.rows.map(function(e) {
 				var x = {};
@@ -257,7 +261,6 @@ exports.delete = function(tableName, whereClause, cb) {
 
 /**
  * @param {string} tableName
- * @param {string} whereClause
  * @param {requestCallback} cb
  */
 exports.drop = function(tableName, cb) {
@@ -275,6 +278,29 @@ exports.drop = function(tableName, cb) {
 	
 
 	var preparedQuery = 'DROP TABLE '+tableName;
+
+	executeSql(preparedQuery, [], cb);
+}
+
+/**
+ * @param {string} tableName
+ * @param {requestCallback} cb
+ */
+exports.dropBlobTable = function(tableName, cb) {
+
+	if (!tableName) {
+		cb('Table name is not specified', null);
+		return;
+	}
+
+	if (!cb) {
+		cb('Where clause is not defined', null);
+		return;
+	}
+
+	
+
+	var preparedQuery = 'DROP BLOB TABLE '+tableName;
 
 	executeSql(preparedQuery, [], cb);
 }
@@ -437,6 +463,18 @@ exports.create = function (schema, cbf)
 	var statement = "CREATE TABLE " + tableName +  " (" + cols + ")"
 	executeSql (statement, [], cbf)
 }
+
+/**
+ * @param {tableName} Name of the BLOB Table
+ * @param {replicas} Number of replicas
+ * @param {shards} Number of shards
+ */
+exports.createBlobTable = function (tableName, replicas, shards, cbf)
+{
+	
+	var statement = "CREATE BLOB TABLE " + tableName +  " clustered into ? shards with (number_of_replicas=?)"
+	executeSql (statement, [shards, replicas], cbf)
+}
 // adding promise .success ./ .error functions
 exports.execute = D.nodeCapsule (exports.execute)
 exports.insert = D.nodeCapsule (exports.insert)
@@ -447,6 +485,9 @@ exports.insertBlobFile = D.nodeCapsule (exports.insertBlobFile)
 exports.insertBlob = D.nodeCapsule (exports.insertBlob)
 exports.create = D.nodeCapsule (exports.create)
 exports.drop = D.nodeCapsule (exports.drop)
+exports.createBlobTable = D.nodeCapsule (exports.createBlobTable)
+exports.dropBlobTable = D.nodeCapsule (exports.dropBlobTable)
+
 
 
 
