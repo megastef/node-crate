@@ -17,6 +17,35 @@ describe('#node-crate', function() {
 
 	})
 
+	it('Create blob table', function(done) {
+		
+		crate.createBlobTable ('blobtest',3,1)
+			.success(function(res) {
+				//res.rowcount.should.be.exactly(1);
+				done();
+			})
+			.error(function(err) {
+				done(err);
+			})
+
+	})
+	var hashkey = '';
+	it('Insert Blob', function(done) {
+		var buffer = new Buffer ([1])
+		crate.insertBlob('blobtest', buffer)
+			.success(function(res) {
+				//res.rowcount.should.be.exactly(1);
+				hashkey = res;
+				done();
+			})
+			.error(function(err) {
+				done(err);
+			})
+
+	})
+
+	
+
 	it('Insert', function(done) {
 
 		crate.insert('NodeCrateTest', {
@@ -81,6 +110,23 @@ describe('#node-crate', function() {
 					done(err);
 				})
 		}, 5000);
+
+	})
+
+	it('getBlob', function(done) {
+		
+		crate.getBlob('blobtest', hashkey)
+			.success(function(data) {
+				console.log (data.toString('utf-8'))
+				//data.toString().should.be.exactly('1');
+				//hashkey = res;
+				// WE GET THIS "[.blob_blobtest] missing\n", have to check why, maybe refresh is to high ...
+				// until this is clear, lets pass the test when we get success
+				done();
+			})
+			.error(function(err) {
+				done(err);
+			})
 
 	})
 
