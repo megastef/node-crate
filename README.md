@@ -5,8 +5,8 @@ node-crate
 [![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
 &nbsp;[![Build Status](https://drone.io/github.com/megastef/node-crate/status.png)](https://drone.io/github.com/megastef/node-crate/latest)
 
-[Crate Data](http://crate.io) _"Crate Data is an open source massively scalable data store.
-It requires zero administration." _
+[Crate Data](http://crate.io) "Crate Data is an open source massively scalable data store.
+It requires zero administration." 
 
 
 ## Features: 
