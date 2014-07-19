@@ -82,14 +82,11 @@ crate.delete ('mytable', "columnName1='value1'").success (console.log)
 ```
 
 ## BLOB's
-First create a blob table e.g. for images in the console
-``` 
-create blob table images clustered into 3 shards with (number_of_replicas=1)
-```
+
 
 ### createBlob (tableName, replicas, shards)
 ```
-crate.createBlobTable ('images',3,1).success(console.log).error(console.log)
+crate.createBlobTable ('images',1,3).success(console.log).error(console.log)
 ```
 ### insertBlob (tableName, buffer)
 ```js
