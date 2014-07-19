@@ -1,6 +1,6 @@
 {
   "name": "node-crate",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "Base node.js SQL-driver for CRATE (crate.io)",
   "main": "node-crate.js",
   "scripts": {
@@ -26,6 +26,6 @@
         "d.js": ">= 0.6.0",
         "should": ">= 3.3.1",
         "mocha": ">= 1.18.2",
-        "type-of-is": "3.3.x"
+        "type-of-is": ">= 3.3.x"
    }
 }
