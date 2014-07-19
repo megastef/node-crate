@@ -86,6 +86,10 @@ exports.types =  crateTypes;
 var Type = require('type-of-is');
 var http = require('http');
 var D = require('d.js')
+// to build hashkeys for blobs
+var crypto = require('crypto');
+var fs = require('fs');
+
 var options = {
     host: 'localhost',
     path: '/_sql?types',
@@ -97,6 +101,7 @@ var options = {
 };
 
 var qMarks = '?';
+
 
 exports.connect = function(host, port) {
 	options.host = host;
@@ -118,13 +123,15 @@ function executeSql (sql, args, cb) {
 		});
 
 		response.on('end', function() {
-			var result = JSON.parse(str);
-
-			if (result.error) {
-                console.log('error:' + sql)
-				if (cb) cb(result.error, null, null);
+			var result = null;
+			try {
+				result = JSON.parse(str);
+			} catch (ex) {
+				console.log('error:' + sql)
+				if (cb) cb(ex, null, null);
 				return;
 			}
+			
 
 			var jsons = result.rows.map(function(e) {
 				var x = {};
@@ -296,7 +303,7 @@ exports.execute = function(arg1, arg2, arg3) {
  */
 function insertBlob(tableName, buffer, cb) {
 
-	var crypto = require('crypto');
+	
 	var shasum = crypto.createHash('sha1');
 	shasum.update(buffer, 'binary')
 	var hashCode = shasum.digest('hex');
@@ -340,7 +347,7 @@ exports.insertBlob = insertBlob;
  * @param {requestCallback} cb
  */
 exports.insertBlobFile = function(tableName, filename, cb) {
-	var fs = require('fs');
+	
 
 	fs.readFile(filename, function(err, data) {
 		if (err) throw err;
@@ -430,16 +437,16 @@ exports.create = function (schema, cbf)
 	var statement = "CREATE TABLE " + tableName +  " (" + cols + ")"
 	executeSql (statement, [], cbf)
 }
-    // adding promise .success ./ .error functions
-    exports.execute = D.nodeCapsule (exports.execute)
-    exports.insert = D.nodeCapsule (exports.insert)
-    exports.update = D.nodeCapsule (exports.update)
-    exports.delete = D.nodeCapsule (exports.delete)
-    exports.getBlob = D.nodeCapsule (exports.getBlob)
-    exports.insertBlobFile = D.nodeCapsule (exports.insertBlobFile)
-    exports.insertBlob = D.nodeCapsule (exports.insertBlob)
-    exports.create = D.nodeCapsule (exports.create)
-    exports.drop = D.nodeCapsule (exports.drop)
+// adding promise .success ./ .error functions
+exports.execute = D.nodeCapsule (exports.execute)
+exports.insert = D.nodeCapsule (exports.insert)
+exports.update = D.nodeCapsule (exports.update)
+exports.delete = D.nodeCapsule (exports.delete)
+exports.getBlob = D.nodeCapsule (exports.getBlob)
+exports.insertBlobFile = D.nodeCapsule (exports.insertBlobFile)
+exports.insertBlob = D.nodeCapsule (exports.insertBlob)
+exports.create = D.nodeCapsule (exports.create)
+exports.drop = D.nodeCapsule (exports.drop)
 
 
 

@@ -5,7 +5,8 @@ node-crate
 [![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
 &nbsp;[![Build Status](https://drone.io/github.com/megastef/node-crate/status.png)](https://drone.io/github.com/megastef/node-crate/latest)
 
-_[Crate Data](http://crate.io) is a shared nothing, fully searchable, document oriented cluster datastore._
+_[Crate Data](http://crate.io) "Crate Data is an open source massively scalable data store.
+It requires zero administration." _
 
 
 ## Features: 
@@ -81,6 +82,15 @@ crate.delete ('mytable', "columnName1='value1'").success (console.log)
 ```
 
 ## BLOB's
+First create a blob table e.g. for images in the console
+``` 
+create blob table images clustered into 3 shards with (number_of_replicas=1)
+```
+
+### createBlob (tableName, replicas, shards)
+```
+crate.createBlobTable ('images',3,1).success(console.log).error(console.log)
+```
 ### insertBlob (tableName, buffer)
 ```js
 crate.insertBlob ('images', buffer).success (console.log)
