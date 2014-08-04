@@ -6,9 +6,10 @@ node-crate
 [![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
 &nbsp;[![Build Status](https://drone.io/github.com/megastef/node-crate/status.png)](https://drone.io/github.com/megastef/node-crate/latest)
 
-This is an independent node.js driver implementation for CRATE using the _sql enpoint REST API.
+This is an independent node.js driver implementation for CRATE using the _sql endpoint REST API.
 
 [Crate Data](http://crate.io) "Easy to scale real time SQL data store" 
+
 Please note: Crate is a trademark of Crate Technology Gmbh, registered in the E.U. and in other countries.
 
 
