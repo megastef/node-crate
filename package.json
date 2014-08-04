@@ -1,6 +1,6 @@
 {
   "name": "node-crate",
-  "version": "0.9.9",
+  "version": "1.0",
   "description": "Base node.js SQL-driver for CRATE (crate.io)",
   "main": "node-crate.js",
   "scripts": {
