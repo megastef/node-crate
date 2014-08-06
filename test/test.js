@@ -2,7 +2,6 @@
 
 var Lab = require("lab"),
     crate = require('../'),
-    should = require('should'),
     describe = Lab.experiment,
     it = Lab.test,
     expect = Lab.expect;
