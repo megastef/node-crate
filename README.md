@@ -122,7 +122,7 @@ The intention was to use it with node.js on the server side, but it is possible 
 npm run bundle
 ```
 
-The resulting bundle.js is included in this repository.but It might not be up-to-date - therefore it is included in the automatic build/test on drone.io you can refer to this file:
+The resulting automatically generated using drone.io. You can refer to this file:
 
 ```
 <script src="https://drone.io/github.com/megastef/node-crate/files/bundle.js"></script>
