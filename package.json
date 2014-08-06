@@ -4,7 +4,8 @@
   "description": "Base node.js SQL-driver for CRATE (crate.io)",
   "main": "lib/index.js",
   "scripts": {
-    "test": "lab -m 6000"
+    "test": "lab -m 6000",
+    "bundle": "browserify -r ./lib/index.js:node-crate > bundle.js"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "lab": "~3.2.3",
-    "lab-lint": "0.0.3"
+    "lab-lint": "0.0.3",
+    "browserify": "~5.9.1"
   }
 }

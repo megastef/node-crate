@@ -119,7 +119,7 @@ crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09').success (function (da
 
 The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using [browserify](https://github.com/substack/node-browserify). 
 ```
-browserify -r ./node-crate.js:node-crate > bundle.js
+npm run bundle
 ```
 
 The resulting bundle.js is included in this repository.but It might not be up-to-date - therefore it is included in the automatic build/test on drone.io you can refer to this file:
