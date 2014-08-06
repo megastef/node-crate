@@ -2,9 +2,9 @@
   "name": "node-crate",
   "version": "1.0.5",
   "description": "Base node.js SQL-driver for CRATE (crate.io)",
-  "main": "node-crate.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "lab -m 6000"
   },
   "repository": {
     "type": "git",
@@ -16,16 +16,22 @@
     "sql",
     "driver"
   ],
-  "author": "Stefan Thies, Igor Likhomanov",
+  "author": "Stefan Thies",
+  "contributors": [
+    "Igor Likhomanov",
+    "Martin Heidegger"
+  ],
   "license": "MIT License",
   "bugs": {
     "url": "https://github.com/megastef/node-crate/issues"
   },
   "homepage": "http://megastef.github.io/node-crate/",
-   "dependencies": {
-        "d.js": ">= 0.6.0",
-        "should": ">= 3.3.1",
-        "mocha": ">= 1.18.2",
-        "type-of-is": ">= 3.3.x"
-   }
+  "dependencies": {
+    "d.js": ">= 0.6.0",
+    "type-of-is": ">= 3.3.x"
+  },
+  "devDependencies": {
+    "lab": "~3.2.3",
+    "lab-lint": "0.0.3"
+  }
 }
