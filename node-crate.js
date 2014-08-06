@@ -63,7 +63,8 @@ According to https://github.com/crate/crate/blob/9796dbc9104f47a97f7cc8d92e1fa98
     101 Set
 ===== ===================
 */
-
+//var _ = require('lodash');
+var connectionPool = require ('./connection-pool.js')
 var crateTypes = {
     NULL:           0,
     NOT_SUPPORTED:  1,
@@ -90,22 +91,26 @@ var D = require('d.js')
 var crypto = require('crypto');
 var fs = require('fs');
 
-var options = {
-    host: 'localhost',
-    path: '/_sql?types',
-    port: '4200',
-    method: 'POST',
-    headers: {
-        'Connection': 'keep-alive'
-    }
-};
 
 var qMarks = '?';
 
 
-exports.connect = function(host, port) {
-	options.host = host;
-	options.port = port;
+exports.connect = function(host, port) 
+{
+	
+	if (port && port >= 0) 
+		connectionPool.connect ('http://' + host + ':' + port)
+	else
+		connectionPool.connect (host)
+}
+
+function connect (connectString)
+{
+	connectCluster (connectString)
+}
+
+var connectCluster = function(options) {
+	connectionPool.connect (options)
 }
 
 /**
@@ -156,8 +161,8 @@ function executeSql (sql, args, cb) {
 
 	}
 
-	var req = http.request(options, callback);
-
+	//var req = http.request(options, callback);
+	var req = connectionPool.getSqlRequest (callback)
 	req.write(JSON.stringify({
 		stmt: sql,
 		args: args
@@ -252,7 +257,7 @@ exports.delete = function(tableName, whereClause, cb) {
 		return;
 	}
 
-	var preparedOptions = prepareOptionsInsert(options);
+	//var preparedOptions = prepareOptionsInsert({});
 
 	var preparedQuery = 'DELETE FROM ' + tableName + ' WHERE ' + whereClause;
 
@@ -333,7 +338,7 @@ function insertBlob(tableName, buffer, cb) {
 	var shasum = crypto.createHash('sha1');
 	shasum.update(buffer, 'binary')
 	var hashCode = shasum.digest('hex');
-
+	var options = connectionPool.getHttpOptions()
 	var blobOptions = {
 		host: options.host,
 		path: '/_blobs/' + tableName + '/' + hashCode,
@@ -401,7 +406,8 @@ exports.getBlob = function(tableName, hashKey, cb) {
 		});
 	}
 
-	var reqUrl = 'http://' + options.host + ':' + options.port + '/_blobs/' + tableName + '/' + hashKey;
+	//var reqUrl = 'http://' + options.host + ':' + options.port + '/_blobs/' + tableName + '/' + hashKey;
+	var reqUrl = connectionPool.getBlobUrl() + tableName + '/' + hashKey;
 	http.get(reqUrl, callback);
 
 }
