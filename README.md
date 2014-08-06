@@ -30,7 +30,7 @@ npm install node-crate
 ```
 
 ## Test
-When a crate instance is running on http://localhost:4200 you can use mocha based test (test/test.js).
+When a crate instance is running on http://localhost:4200 you can use [lab](https://github.com/spumko/lab) based test (test/test.js).
 Test actions: create table, insert, select, update, delete and drop table.  
 
 ```
