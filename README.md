@@ -42,6 +42,9 @@ npm test
 ```js
 var crate = require('node-crate');
 crate.connect ('localhost', 4200)
+// or crate.connect ('http://localhost:4200')
+// to use multiple nodes in round robin crate.connect ('http://host1:4200 http://host2:4200')
+// to use https crate.connect ('https://host1:4200 https://host2:4200')
 crate.execute ("select * from tweets where text like ? and retweed=? limit 1", ['Frohe Ostern%', true]).success (function (res){
 	// res.json is an array with JSON object, with column names as properties, TIMESTAMP is converted to Date for crate V0.38+
 	// res.cols are column names
