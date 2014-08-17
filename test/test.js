@@ -25,9 +25,11 @@ describe('#node-crate', function () {
         crate.createBlobTable('blobtest', 3, 1)
             .success(function () {
                 //expect(res.rowcount).to.be.equal(1);
+                //console.log(s);
                 done();
             })
             .error(function (err) {
+                console.log(err);
                 done(err);
             });
     });
@@ -40,6 +42,17 @@ describe('#node-crate', function () {
             .success(function (res) {
                 //expect(res.rowcount).to.be.equal(1);
                 hashkey = res;
+                done();
+            })
+            .error(function (err) {
+                done(err);
+            });
+    });
+
+    it('Drop Blob Table', function (done) {
+        crate.dropBlobTable('blobtest')
+            .success(function () {
+                //expect(res.rowcount).to.be.equal(1);
                 done();
             })
             .error(function (err) {
