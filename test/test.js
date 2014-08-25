@@ -6,7 +6,7 @@ var Lab = require("lab"),
     it = Lab.test,
     expect = Lab.expect;
 
-crate.connect('localhost', 4200);
+crate.connect('http://localhost:4200');
 
 describe('#node-crate', function () {
     it('Create table', function (done) {
