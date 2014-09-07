@@ -19,9 +19,13 @@ var Lab = require("lab"),
 gitTokenFile = path.resolve(__dirname, "../.gittoken");
 /*jslint nomen: false*/
 
+function trim(str) {
+    return str.replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g, '').replace(/\s+/g, ' ');
+}
+
 /*jslint stupid: true*/
 if (fs.existsSync(gitTokenFile)) {
-    githubPrivateAccessToken = fs.readFileSync(gitTokenFile).toString('base64');
+    githubPrivateAccessToken = new Buffer(trim(fs.readFileSync(gitTokenFile).toString()) + ":x-oauth-basic").toString("base64");
 }
 /*jslint stupid: false*/
 
