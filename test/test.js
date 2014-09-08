@@ -40,11 +40,13 @@ describe('#node-crate', function () {
         var buffer = new Buffer([1]);
         crate.insertBlob('blobtest', buffer)
             .success(function (res) {
+                //console.log(res);
                 //expect(res.rowcount).to.be.equal(1);
                 hashkey = res;
                 done();
             })
             .error(function (err) {
+                console.log(err);
                 done(err);
             });
     });
