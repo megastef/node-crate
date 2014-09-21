@@ -1,7 +1,7 @@
 {
   "name": "node-crate",
-  "version": "1.0.13",
-  "description": "Base node.js SQL-driver for CRATE (crate.io)",
+  "version": "1.0.14",
+  "description": "Node.js SQL-driver for CRATE data store (crate.io)",
   "main": "lib/index.js",
   "scripts": {
     "test": "lab -m 80000",
@@ -15,7 +15,11 @@
     "CRATE",
     "crate.io",
     "sql",
-    "driver"
+    "driver",
+    "bigdata",
+    "elasticsearch alternative",
+    "driver for scalable data store",
+    "BLOB storage"
   ],
   "author": "Stefan Thies",
   "contributors": [
