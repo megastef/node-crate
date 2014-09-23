@@ -1,10 +1,12 @@
 node-crate
 ==========
 
+[![NPM](https://nodei.co/npm/node-crate.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/node-crate/)
 
  
 [![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
 &nbsp;[![Build Status](https://drone.io/github.com/megastef/node-crate/status.png)](https://drone.io/github.com/megastef/node-crate/latest)
+
 
 This is an independent node.js driver implementation for CRATE using the _sql endpoint REST API.
 
