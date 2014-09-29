@@ -37,20 +37,22 @@ describe('#node-crate', function () {
     var hashkey = '';
 
     it('Insert Blob', function (done) {
-        var buffer = new Buffer([1]);
-        crate.insertBlob('blobtest', buffer)
-            .success(function (res) {
-                //console.log(res);
-                //expect(res.rowcount).to.be.equal(1);
-                hashkey = res;
-                done();
-            })
-            .error(function (err) {
-                console.log(err);
-                // crate returned an error, but it does not mean that the driver behaves wrong.
-                // In this case we get HTTP 500 only on drone.io, we need to check why
-                done(err);
-            });
+        setTimeout(function () {
+            var buffer = new Buffer([1]);
+            crate.insertBlob('blobtest', buffer)
+                .success(function (res) {
+                    //console.log(res);
+                    //expect(res.rowcount).to.be.equal(1);
+                    hashkey = res;
+                    done();
+                })
+                .error(function (err) {
+                    console.log(err);
+                    // crate returned an error, but it does not mean that the driver behaves wrong.
+                    // In this case we get HTTP 500 only on drone.io, we need to check why
+                    done(err);
+                });
+        }, 3000);
     });
 
     it('Drop Blob Table', function (done) {
