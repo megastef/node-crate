@@ -49,7 +49,7 @@ describe('#node-crate', function () {
                 console.log(err);
                 // crate returned an error, but it does not mean that the driver behaves wrong.
                 // In this case we get HTTP 500 only on drone.io, we need to check why
-                done();
+                done(err);
             });
     });
 
