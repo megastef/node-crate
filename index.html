@@ -1,34 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Node-crate by megastef</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <title>Node-crate by megastef</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
+    <header>
+      <div class="inner">
         <h1>Node-crate</h1>
-        <p>Node.js base DB-Driver for CRATE (www.crate.io)</p>
-        <p class="view"><a href="https://github.com/megastef/node-crate">View the Project on GitHub <small>megastef/node-crate</small></a></p>
-        <ul>
-          <li><a href="https://github.com/megastef/node-crate/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/megastef/node-crate/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/megastef/node-crate">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>
-<a name="node-crate" class="anchor" href="#node-crate"><span class="octicon octicon-link"></span></a>node-crate</h1>
+        <h2>Node.js base DB-Driver for CRATE (www.crate.io)</h2>
+        <a href="https://github.com/megastef/node-crate" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="node-crate" class="anchor" href="#node-crate" aria-hidden="true"><span class="octicon octicon-link"></span></a>node-crate</h1>
 
 <p><a href="https://nodei.co/npm/node-crate/"><img src="https://nodei.co/npm/node-crate.png?downloads=true&amp;downloadRank=true&amp;stars=true" alt="NPM"></a></p>
 
@@ -42,27 +43,29 @@
 <p>Please note: Crate is a trademark of Crate Technology Gmbh, registered in the E.U. and in other countries.</p>
 
 <h2>
-<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features:</h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features:</h2>
 
 <ol>
 <li>Async Interface</li>
 <li>Conversion from rows to array of JSON entities</li>
 <li>Automatic build of SQL statements from JSON or full control with SQL String with placeholders and arguments </li>
 <li>Support for BLOB objects (e.g. for image uploads) with inbuilt key generation</li>
-</ol><h2>
-<a name="known-limitation" class="anchor" href="#known-limitation"><span class="octicon octicon-link"></span></a>Known limitation</h2>
+</ol>
+
+<h2>
+<a id="known-limitation" class="anchor" href="#known-limitation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Known limitation</h2>
 
 <p>Nested JSON objects are currently not supported to generate SQL statements (e.g. for insert/update).
 We might change this soon. </p>
 
 <h2>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
 <pre><code>npm install node-crate
 </code></pre>
 
 <h2>
-<a name="test" class="anchor" href="#test"><span class="octicon octicon-link"></span></a>Test</h2>
+<a id="test" class="anchor" href="#test" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test</h2>
 
 <p>When a crate instance is running on http://localhost:4200 you can use <a href="https://github.com/spumko/lab">lab</a> based test (test/test.js).
 Test actions: create table, insert, select, update, delete and drop table.  </p>
@@ -71,99 +74,89 @@ Test actions: create table, insert, select, update, delete and drop table.  </p>
 </code></pre>
 
 <h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
 
-<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">crate</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'node-crate'</span><span class="p">);</span>
-<span class="nx">crate</span><span class="p">.</span><span class="nx">connect</span> <span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span> <span class="mi">4200</span><span class="p">)</span>
-<span class="c1">// or crate.connect ('http://localhost:4200')</span>
-<span class="c1">// to use multiple nodes in round robin crate.connect ('http://host1:4200 http://host2:4200')</span>
-<span class="c1">// to use https crate.connect ('https://host1:4200 https://host2:4200')</span>
-<span class="nx">crate</span><span class="p">.</span><span class="nx">execute</span> <span class="p">(</span><span class="s2">"select * from tweets where text like ? and retweed=? limit 1"</span><span class="p">,</span> <span class="p">[</span><span class="s1">'Frohe Ostern%'</span><span class="p">,</span> <span class="kc">true</span><span class="p">]).</span><span class="nx">success</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">res</span><span class="p">){</span>
-    <span class="c1">// res.json is an array with JSON object, with column names as properties, TIMESTAMP is converted to Date for crate V0.38+</span>
-    <span class="c1">// res.cols are column names</span>
-    <span class="c1">// res.rows values as array of arrays</span>
-    <span class="c1">// res.duration execution time of query</span>
-    <span class="c1">// res.rowcount number of rows</span>
-    <span class="c1">// res.col_types type of column, e.g. res.col_types[i] == crate.type.TIMESTAMP</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="p">(</span><span class="s1">'Success'</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">duration</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">rowcount</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">cols</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">rows</span><span class="p">)</span>
-<span class="p">})</span>
-
+<div class="highlight highlight-js"><pre><span class="pl-s">var</span> crate <span class="pl-k">=</span> <span class="pl-s3">require</span>(<span class="pl-s1"><span class="pl-pds">'</span>node-crate<span class="pl-pds">'</span></span>);
+crate.connect (<span class="pl-s1"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>, <span class="pl-c1">4200</span>)
+<span class="pl-c">// or crate.connect ('http://localhost:4200')</span>
+<span class="pl-c">// to use multiple nodes in round robin crate.connect ('http://host1:4200 http://host2:4200')</span>
+<span class="pl-c">// to use https crate.connect ('https://host1:4200 https://host2:4200')</span>
+crate.execute (<span class="pl-s1"><span class="pl-pds">"</span>select * from tweets where text like ? and retweed=? limit 1<span class="pl-pds">"</span></span>, [<span class="pl-s1"><span class="pl-pds">'</span>Frohe Ostern%<span class="pl-pds">'</span></span>, <span class="pl-c1">true</span>]).success (<span class="pl-st">function</span> (<span class="pl-vpf">res</span>){
+    <span class="pl-c">// res.json is an array with JSON object, with column names as properties, TIMESTAMP is converted to Date for crate V0.38+</span>
+    <span class="pl-c">// res.cols are column names</span>
+    <span class="pl-c">// res.rows values as array of arrays</span>
+    <span class="pl-c">// res.duration execution time of query</span>
+    <span class="pl-c">// res.rowcount number of rows</span>
+    <span class="pl-c">// res.col_types type of column, e.g. res.col_types[i] == crate.type.TIMESTAMP</span>
+    <span class="pl-en">console</span><span class="pl-s3">.log</span> (<span class="pl-s1"><span class="pl-pds">'</span>Success<span class="pl-pds">'</span></span>, res.json, res.duration, res.rowcount, res.<span class="pl-sc">cols</span>, res.<span class="pl-sc">rows</span>)
+})
 </pre></div>
 
 <h3>
-<a name="execute-sql-args" class="anchor" href="#execute-sql-args"><span class="octicon octicon-link"></span></a>execute (sql, args)</h3>
+<a id="execute-sql-args" class="anchor" href="#execute-sql-args" aria-hidden="true"><span class="octicon octicon-link"></span></a>execute (sql, args)</h3>
 
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">execute</span> <span class="p">(</span><span class="s2">"select * from tweets where text like ?"</span><span class="p">,</span> <span class="p">[</span><span class="s1">'%crate%'</span><span class="p">]).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">).</span><span class="nx">error</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> 
-</pre></div>
-
-<h3>
-<a name="insert-tablename-jsonentity" class="anchor" href="#insert-tablename-jsonentity"><span class="octicon octicon-link"></span></a>insert (tableName, jsonEntity)</h3>
-
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">insert</span> <span class="p">(</span><span class="s1">'mytable'</span><span class="p">,</span> <span class="p">{</span><span class="nx">columnName1</span><span class="o">:</span> <span class="s1">'value1'</span><span class="p">,</span> <span class="nx">columnName2</span><span class="o">:</span> <span class="s1">'value2'</span><span class="p">}).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
-</pre></div>
+<div class="highlight highlight-js"><pre>crate.execute (<span class="pl-s1"><span class="pl-pds">"</span>select * from tweets where text like ?<span class="pl-pds">"</span></span>, [<span class="pl-s1"><span class="pl-pds">'</span>%crate%<span class="pl-pds">'</span></span>]).success (<span class="pl-en">console</span><span class="pl-s3">.log</span>)<span class="pl-s3">.error</span>(<span class="pl-en">console</span><span class="pl-s3">.error</span>) </pre></div>
 
 <h3>
-<a name="create-tablename-where" class="anchor" href="#create-tablename-where"><span class="octicon octicon-link"></span></a>create (tableName, where)</h3>
+<a id="insert-tablename-jsonentity" class="anchor" href="#insert-tablename-jsonentity" aria-hidden="true"><span class="octicon octicon-link"></span></a>insert (tableName, jsonEntity)</h3>
 
-<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">scheme</span> <span class="o">=</span> <span class="p">{</span><span class="nx">book</span><span class="o">:</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="s1">'integer primary key'</span><span class="p">,</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">'string'</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s1">'string'</span><span class="p">}}</span>
-<span class="nx">crate</span><span class="p">.</span><span class="nx">create</span> <span class="p">(</span><span class="nx">scheme</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
-</pre></div>
+<div class="highlight highlight-js"><pre>crate.insert (<span class="pl-s1"><span class="pl-pds">'</span>mytable<span class="pl-pds">'</span></span>, {columnName1<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>value1<span class="pl-pds">'</span></span>, columnName2<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>value2<span class="pl-pds">'</span></span>}).success (<span class="pl-en">console</span><span class="pl-s3">.log</span>)</pre></div>
 
 <h3>
-<a name="drop-tablename" class="anchor" href="#drop-tablename"><span class="octicon octicon-link"></span></a>drop (tableName)</h3>
+<a id="create-tablename-where" class="anchor" href="#create-tablename-where" aria-hidden="true"><span class="octicon octicon-link"></span></a>create (tableName, where)</h3>
 
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">drop</span> <span class="p">(</span><span class="s1">'mytable'</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
-</pre></div>
-
-<h3>
-<a name="update-tablename-jsonentity-whereclause" class="anchor" href="#update-tablename-jsonentity-whereclause"><span class="octicon octicon-link"></span></a>update (tableName, jsonEntity, whereClause)</h3>
-
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">update</span> <span class="p">(</span><span class="s1">'mytable'</span><span class="p">,</span> <span class="p">{</span><span class="nx">columnName1</span><span class="o">:</span> <span class="s1">'value1'</span><span class="p">,</span> <span class="nx">columnName2</span><span class="o">:</span> <span class="s1">'value2'</span><span class="p">},</span> <span class="s1">'columnName3=5'</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
-</pre></div>
+<div class="highlight highlight-js"><pre><span class="pl-s">var</span> scheme <span class="pl-k">=</span> {book<span class="pl-k">:</span> {id<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>integer primary key<span class="pl-pds">'</span></span>, title<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>string<span class="pl-pds">'</span></span>, author<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>string<span class="pl-pds">'</span></span>}}
+crate.create (scheme).success (<span class="pl-en">console</span><span class="pl-s3">.log</span>)</pre></div>
 
 <h3>
-<a name="delete-tablename-where" class="anchor" href="#delete-tablename-where"><span class="octicon octicon-link"></span></a>delete (tableName, where)</h3>
+<a id="drop-tablename" class="anchor" href="#drop-tablename" aria-hidden="true"><span class="octicon octicon-link"></span></a>drop (tableName)</h3>
 
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="k">delete</span> <span class="p">(</span><span class="s1">'mytable'</span><span class="p">,</span> <span class="s2">"columnName1='value1'"</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
-</pre></div>
+<div class="highlight highlight-js"><pre>crate.drop (<span class="pl-s1"><span class="pl-pds">'</span>mytable<span class="pl-pds">'</span></span>).success (<span class="pl-en">console</span><span class="pl-s3">.log</span>)</pre></div>
+
+<h3>
+<a id="update-tablename-jsonentity-whereclause" class="anchor" href="#update-tablename-jsonentity-whereclause" aria-hidden="true"><span class="octicon octicon-link"></span></a>update (tableName, jsonEntity, whereClause)</h3>
+
+<div class="highlight highlight-js"><pre>crate.update (<span class="pl-s1"><span class="pl-pds">'</span>mytable<span class="pl-pds">'</span></span>, {columnName1<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>value1<span class="pl-pds">'</span></span>, columnName2<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>value2<span class="pl-pds">'</span></span>}, <span class="pl-s1"><span class="pl-pds">'</span>columnName3=5<span class="pl-pds">'</span></span>).success (<span class="pl-en">console</span><span class="pl-s3">.log</span>)</pre></div>
+
+<h3>
+<a id="delete-tablename-where" class="anchor" href="#delete-tablename-where" aria-hidden="true"><span class="octicon octicon-link"></span></a>delete (tableName, where)</h3>
+
+<div class="highlight highlight-js"><pre>crate.delete (<span class="pl-s1"><span class="pl-pds">'</span>mytable<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">"</span>columnName1='value1'<span class="pl-pds">"</span></span>).success (<span class="pl-en">console</span><span class="pl-s3">.log</span>)</pre></div>
 
 <h2>
-<a name="blobs" class="anchor" href="#blobs"><span class="octicon octicon-link"></span></a>BLOB's</h2>
+<a id="blobs" class="anchor" href="#blobs" aria-hidden="true"><span class="octicon octicon-link"></span></a>BLOB's</h2>
 
 <h3>
-<a name="createblob-tablename-replicas-shards" class="anchor" href="#createblob-tablename-replicas-shards"><span class="octicon octicon-link"></span></a>createBlob (tableName, replicas, shards)</h3>
+<a id="createblob-tablename-replicas-shards" class="anchor" href="#createblob-tablename-replicas-shards" aria-hidden="true"><span class="octicon octicon-link"></span></a>createBlob (tableName, replicas, shards)</h3>
 
 <pre><code>crate.createBlobTable ('images',1,3).success(console.log).error(console.log)
 </code></pre>
 
 <h3>
-<a name="insertblob-tablename-buffer" class="anchor" href="#insertblob-tablename-buffer"><span class="octicon octicon-link"></span></a>insertBlob (tableName, buffer)</h3>
+<a id="insertblob-tablename-buffer" class="anchor" href="#insertblob-tablename-buffer" aria-hidden="true"><span class="octicon octicon-link"></span></a>insertBlob (tableName, buffer)</h3>
 
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">insertBlob</span> <span class="p">(</span><span class="s1">'images'</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
-</pre></div>
+<div class="highlight highlight-js"><pre>crate.insertBlob (<span class="pl-s1"><span class="pl-pds">'</span>images<span class="pl-pds">'</span></span>, buffer).success (<span class="pl-en">console</span><span class="pl-s3">.log</span>)</pre></div>
 
 <h3>
-<a name="insertblobfile-tablename-filename" class="anchor" href="#insertblobfile-tablename-filename"><span class="octicon octicon-link"></span></a>insertBlobFile (tableName, fileName)</h3>
+<a id="insertblobfile-tablename-filename" class="anchor" href="#insertblobfile-tablename-filename" aria-hidden="true"><span class="octicon octicon-link"></span></a>insertBlobFile (tableName, fileName)</h3>
 
 <p>The callback returns the required haskey to get the image with getBlob.</p>
 
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">insertBlobFile</span> <span class="p">(</span><span class="s1">'images'</span><span class="p">,</span> <span class="s1">'./test.png'</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">hashKey</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="p">(</span><span class="s2">"Assigned hashkey"</span><span class="o">:</span> <span class="nx">hashKey</span><span class="p">)</span>
-<span class="p">})</span>
-</pre></div>
+<div class="highlight highlight-js"><pre>crate.insertBlobFile (<span class="pl-s1"><span class="pl-pds">'</span>images<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>./test.png<span class="pl-pds">'</span></span>).success (<span class="pl-st">function</span> (<span class="pl-vpf">hashKey</span>) {
+    <span class="pl-en">console</span><span class="pl-s3">.log</span> (<span class="pl-s1"><span class="pl-pds">"</span>Assigned hashkey<span class="pl-pds">"</span></span><span class="pl-k">:</span> hashKey)
+})</pre></div>
 
 <h3>
-<a name="getblob-tablename-hashkey" class="anchor" href="#getblob-tablename-hashkey"><span class="octicon octicon-link"></span></a>getBlob (tableName, hashKey)</h3>
+<a id="getblob-tablename-hashkey" class="anchor" href="#getblob-tablename-hashkey" aria-hidden="true"><span class="octicon octicon-link"></span></a>getBlob (tableName, hashKey)</h3>
 
 <p>The callback return a buffer as result - callback (buffer)</p>
 
-<div class="highlight highlight-js"><pre><span class="nx">crate</span><span class="p">.</span><span class="nx">getBlob</span> <span class="p">(</span><span class="s1">'f683e0c9abcbf518704af66c6195bfd3ff121f09'</span><span class="p">).</span><span class="nx">success</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span> <span class="p">(</span><span class="s1">'test.gif'</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
-<span class="p">})</span>
-</pre></div>
+<div class="highlight highlight-js"><pre>crate.getBlob (<span class="pl-s1"><span class="pl-pds">'</span>f683e0c9abcbf518704af66c6195bfd3ff121f09<span class="pl-pds">'</span></span>).success (<span class="pl-st">function</span> (<span class="pl-vpf">data</span>) {
+    fs.writeFileSync (<span class="pl-s1"><span class="pl-pds">'</span>test.gif<span class="pl-pds">'</span></span>, data)
+})</pre></div>
 
 <h1>
-<a name="use-in-webbrowsers-javascript" class="anchor" href="#use-in-webbrowsers-javascript"><span class="octicon octicon-link"></span></a>Use in Webbrowsers JavaScript</h1>
+<a id="use-in-webbrowsers-javascript" class="anchor" href="#use-in-webbrowsers-javascript" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use in Webbrowsers JavaScript</h1>
 
 <p>The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using <a href="https://github.com/substack/node-browserify">browserify</a>. </p>
 
@@ -185,12 +178,14 @@ Test actions: create table, insert, select, update, delete and drop table.  </p>
 </code></pre>
 
 <h2>
-<a name="roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
+<a id="roadmap" class="anchor" href="#roadmap" aria-hidden="true"><span class="octicon octicon-link"></span></a>Roadmap</h2>
 
 <ol>
 <li>We plan to support in future waterline.js as ORM on top of this base driver. </li>
-</ol><h2>
-<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+</ol>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
 
 <p>The MIT License(MIT)
 Copyright(C) 2014 by Stefan Thies, Igor Likhomanov</p>
@@ -212,13 +207,25 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.</p>
-      </section>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/megastef/node-crate/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/megastef/node-crate/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/megastef/node-crate"></a> is maintained by <a href="https://github.com/megastef">megastef</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/megastef">megastef</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
+
+  
   </body>
 </html>
