@@ -1,10 +1,10 @@
 {
   "name": "node-crate",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Node.js SQL-driver for CRATE data store (crate.io)",
   "main": "lib/index.js",
   "scripts": {
-    "test": "lab -m 80000",
+    "test": "lab -m 20000",
     "bundle": "browserify -r ./lib/index.js:node-crate > bundle.js"
   },
   "repository": {

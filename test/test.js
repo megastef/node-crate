@@ -6,9 +6,22 @@ var Lab = require("lab"),
     it = Lab.test,
     expect = Lab.expect;
 
-crate.connect('http://localhost:4200');
+crate.connect('http://127.0.0.1:4200');
 
 describe('#node-crate', function () {
+    it('Create blob table', function (done) {
+        crate.createBlobTable('blob_test', 0, 1)
+            .success(function () {
+                // expect(res.rowcount).to.be.equal(1);
+                // console.log(res);
+                done();
+            })
+            .error(function (err) {
+                console.log(err);
+                done(err);
+            });
+    });
+
     it('Create table', function (done) {
         var schema = {NodeCrateTest: {id: 'integer primary key', title: 'string'}};
         crate.create(schema)
@@ -21,25 +34,12 @@ describe('#node-crate', function () {
             });
     });
 
-    it('Create blob table', function (done) {
-        crate.createBlobTable('blobtest', 3, 1)
-            .success(function () {
-                //expect(res.rowcount).to.be.equal(1);
-                //console.log(s);
-                done();
-            })
-            .error(function (err) {
-                console.log(err);
-                done(err);
-            });
-    });
-
     var hashkey = '';
 
     it('Insert Blob', function (done) {
         setTimeout(function () {
-            var buffer = new Buffer([1]);
-            crate.insertBlob('blobtest', buffer)
+            // var buffer = new Buffer([1,3,4]);
+            crate.insertBlobFile('blob_test', './lib/index.js')
                 .success(function (res) {
                     //console.log(res);
                     //expect(res.rowcount).to.be.equal(1);
@@ -52,24 +52,14 @@ describe('#node-crate', function () {
                     // In this case we get HTTP 500 only on drone.io, we need to check why
                     done();
                 });
-        }, 3000);
-    });
-
-    it('Drop Blob Table', function (done) {
-        crate.dropBlobTable('blobtest')
-            .success(function () {
-                //expect(res.rowcount).to.be.equal(1);
-                done();
-            })
-            .error(function (err) {
-                done(err);
-            });
+        }, 1000);
     });
 
     it('Insert', function (done) {
         crate.insert('NodeCrateTest', {
             id: '1',
-            title: 'Title'
+            title: 'Title',
+            numberVal: 42
         })
             .success(function (res) {
                 expect(res.rowcount).to.be.equal(1);
@@ -83,7 +73,7 @@ describe('#node-crate', function () {
     it('Select', function (done) {
 
         setTimeout(function () {
-            crate.execute('SELECT * FROM NodeCrateTest limit 100')
+            crate.execute('SELECT * FROM NodeCrateTest limit 1')
                 .success(function (res) {
                     expect(res.rowcount).to.be.equal(1);
                     done();
@@ -91,7 +81,7 @@ describe('#node-crate', function () {
                 .error(function (err) {
                     done(err);
                 });
-        }, 5000);
+        }, 1000);
     });
 
     it('Update', function (done) {
@@ -112,12 +102,13 @@ describe('#node-crate', function () {
             crate.execute('SELECT * FROM NodeCrateTest limit 100')
                 .success(function (res) {
                     expect(res.json[0].title).to.be.equal('TitleNew');
+                    expect(res.json[0].numberVal).to.be.equal(42);
                     done();
                 })
                 .error(function (err) {
                     done(err);
                 });
-        }, 5000);
+        }, 1000);
     });
 
     it('getBlob', function (done) {
@@ -145,7 +136,7 @@ describe('#node-crate', function () {
             });
     });
 
-    it('Delete table', function (done) {
+    it('Drop table', function (done) {
         crate.drop('NodeCrateTest')
             .success(function (res) {
                 expect(res.rowcount).to.be.equal(1);
@@ -154,5 +145,18 @@ describe('#node-crate', function () {
             .error(function (err) {
                 done(err);
             });
+    });
+
+    it('Drop Blob Table', function (done) {
+        setTimeout(function () {
+            crate.dropBlobTable('blob_test')
+                .success(function () {
+                    // expect(res.rowcount).to.be.equal(1);
+                    done();
+                })
+                .error(function (err) {
+                    done(err);
+                });
+        }, 6000);
     });
 });
