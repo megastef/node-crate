@@ -6,7 +6,7 @@ var crate = require('../')
 // describe = Lab.experiment,
 // it = Lab.test,
 // expect = Lab.expect
-
+var docsToInsert = 1000
 crate.connect('http://127.0.0.1:4200')
 
 describe('#node-crate', function () {
@@ -74,17 +74,49 @@ describe('#node-crate', function () {
     }, 500)
   })
 
+  it('Insert Many', function (done) {
+    setTimeout(function () {
+      var success = 0
+      var errorReported = false
+      var longTitle = 'A long title to generate larger chunks ...'
+      for (var k = 0; k < 5; k++) {
+        longTitle += longTitle
+      }
+      for (var i = 0; i < docsToInsert; i++) {
+        crate.insert('NodeCrateTest', {
+          id: i + 100,
+          title: longTitle,
+          numberVal: 42
+        })
+          .success(function (res) {
+            success++
+            if (success === docsToInsert) {
+              done()
+            }
+          })
+          .error(function (err) {
+            console.log(err)
+            if (!errorReported) {
+              errorReported = true
+              done(err)
+            }
+
+          })
+      }
+    }, 500)
+  })
+
   it('Select', function (done) {
     setTimeout(function () {
-      crate.execute('SELECT * FROM NodeCrateTest limit 1')
+      crate.execute('SELECT * FROM NodeCrateTest limit ' + docsToInsert)
         .success(function (res) {
-          expect(res.rowcount).toBe(1)
+          expect(res.rowcount).toBe(docsToInsert)
           done()
         })
         .error(function (err) {
           done(err)
         })
-    }, 1000)
+    }, 10000)
   })
 
   it('Update', function (done) {
@@ -104,16 +136,17 @@ describe('#node-crate', function () {
 
   it('Select after update', function (done) {
     setTimeout(function () {
-      crate.execute('SELECT * FROM NodeCrateTest limit 100')
+      crate.execute('SELECT * FROM NodeCrateTest where id=1 limit 100')
         .success(function (res) {
           expect(res.json[0].title).toBe('TitleNew')
           expect(res.json[0].numberVal).toBe(42)
           done()
         })
         .error(function (err) {
+          console.log(err)
           done(err)
         })
-    }, 3000)
+    }, 4000)
   })
 
   it('getBlob', function (done) {
