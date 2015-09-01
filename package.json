@@ -4,7 +4,7 @@
   "description": "Node.js SQL-driver for CRATE data store (crate.io)",
   "main": "lib/index.js",
   "scripts": {
-    "test": "standard --format && mocha -t 20000",
+    "test": "standard --format lib/*.js && mocha -t 20000",
     "bundle": "browserify -r ./lib/index.js:node-crate > bundle.js"
   },
   "repository": {
