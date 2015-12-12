@@ -106,6 +106,35 @@ describe('#node-crate', function () {
     }, 500)
   })
 
+  it('Insert Bulk', function (done) {
+      setTimeout(function () {
+        var success = 0
+        var errorReported = false
+        var title = 'A title'
+        var bulkArgs = [];
+        for (var i = 0; i < docsToInsert; i++) {
+          bulkArgs[i] = [
+            i + 1000,
+            title,
+            42
+          ]
+        }
+        crate.executeBulk('INSERT INTO NodeCrateTest (id, title, "numberVal") Values (?, ?, ?)', bulkArgs)
+        .success(function (res) {
+            done()
+        })
+        .error(function (err) {
+          console.log(err)
+          if (!errorReported) {
+            errorReported = true
+            done(err)
+          }
+
+        })
+
+      }, 500)
+  })
+
   it('Select', function (done) {
     setTimeout(function () {
       crate.execute('SELECT * FROM NodeCrateTest limit ' + docsToInsert)
