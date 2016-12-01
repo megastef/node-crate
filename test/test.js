@@ -6,7 +6,10 @@ var crate = require('../')
 // describe = Lab.experiment,
 // it = Lab.test,
 // expect = Lab.expect
-var docsToInsert = 1000
+// Why only 50? the default setting in crate ...
+// EsThreadPoolExecutor[bulk, queue capacity = 50]
+// for more than 50 inserts at once use Bulk insert or increase queue in Crate
+var docsToInsert = 50
 crate.connect('http://127.0.0.1:4200')
 
 describe('#node-crate', function () {
