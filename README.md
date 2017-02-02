@@ -4,27 +4,44 @@ node-crate
 
 [![NPM](https://nodei.co/npm/node-crate.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/node-crate/)
 
- 
+
 [![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
-&nbsp;[![Build Status](https://drone.io/github.com/megastef/node-crate/status.png)](https://drone.io/github.com/megastef/node-crate/latest)
+&nbsp;[![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 
 This is an independent node.js driver implementation for CRATE using the _sql endpoint REST API.
 
-[Crate Data](http://crate.io) "Easy to scale real time SQL data store" 
+[Crate Data](http://crate.io) "Easy to scale real time SQL data store"
 
 Please note: Crate is a trademark of Crate Technology Gmbh, registered in the E.U. and in other countries.
 
 
-## Features: 
+## Features:
 1. Async Interface
 2. Conversion from rows to array of JSON entities
-3. Automatic build of SQL statements from JSON or full control with SQL String with placeholders and arguments 
+3. Automatic build of SQL statements from JSON or full control with SQL String with placeholders and arguments
 4. Support for BLOB objects (e.g. for image uploads) with inbuilt key generation
 
 ## Known limitation
 Nested JSON objects are currently not supported to generate SQL statements (e.g. for insert/update).
-We might change this soon. 
+We might change this soon.
+
+## Breaking changes in version 2 / Migration
+
+Node-crate now using ES6 features and is not compatible anymore with node.js version lower than 4.0.0.
+
+Package is using native promises, instead of promises implementation by D.js package.
+
+Node-crate version 1.x code:
+```
+crate.execute("select ...", {}).success(console.log).error(console.error);
+```
+
+Should be updated to node-crate version 2.x:
+```
+crate.execute("select ...", {}).then((res) => {...})).catch((err) => {...}))
+```
+
 
 ## Installation
 
@@ -34,61 +51,61 @@ npm install node-crate
 
 ## Test
 When a crate instance is running on http://localhost:4200 you can use [lab](https://github.com/spumko/lab) based test (test/test.js).
-Test actions: create table, insert, select, update, delete and drop table.  
+Test actions: create table, insert, select, update, delete and drop table.
 
 ```
-npm test 
+npm test
 ```
 
 ## Usage
 
 ```js
 var crate = require('node-crate');
-crate.connect ('localhost', 4200)
+crate.connect('localhost', 4200);
 // or crate.connect ('http://localhost:4200')
 // to use multiple nodes in round robin crate.connect ('http://host1:4200 http://host2:4200')
 // to use https crate.connect ('https://host1:4200 https://host2:4200')
-crate.execute ("select * from tweets where text like ? and retweed=? limit 1", ['Frohe Ostern%', true]).success (function (res){
+crate.execute("select * from tweets where text like ? and retweed=? limit 1", ['Frohe Ostern%', true]).then((res) => {
 	// res.json is an array with JSON object, with column names as properties, TIMESTAMP is converted to Date for crate V0.38+
 	// res.cols are column names
 	// res.rows values as array of arrays
 	// res.duration execution time of query
 	// res.rowcount number of rows
 	// res.col_types type of column, e.g. res.col_types[i] == crate.type.TIMESTAMP
-	console.log ('Success', res.json, res.duration, res.rowcount, res.cols, res.rows)
+	console.log('Success', res.json, res.duration, res.rowcount, res.cols, res.rows)
 })
 
 ```
 ### execute (sql, args)
 ```js
-crate.execute ("select * from tweets where text like ?", ['%crate%']).success (console.log).error(console.error) 
+crate.execute("select * from tweets where text like ?", ['%crate%']).then((res) => console.log(res))).catch((err) => console.log(err))
 ```
 ### insert (tableName, jsonEntity)
 ```js
-crate.insert ('mytable', {columnName1: 'value1', columnName2: 'value2'}).success (console.log)
+crate.insert('mytable', {columnName1: 'value1', columnName2: 'value2'}).then((res) => {})
 ```
 
 ### create (tableName, where)
 ```js
 var scheme = {book: {id: 'integer primary key', title: 'string', author: 'string'}}
-crate.create (scheme).success (console.log)
+crate.create(scheme).then(() => {})
 ```
 
 ### drop (tableName)
 ```js
-crate.drop ('mytable').success (console.log)
+crate.drop('mytable').then(() => {})
 ```
 
 
 ### update (tableName, jsonEntity, whereClause)
 ```js
-crate.update ('mytable', {columnName1: 'value1', columnName2: 'value2'}, 'columnName3=5').success (console.log)
+crate.update('mytable', {columnName1: 'value1', columnName2: 'value2'}, 'columnName3=5').then(() => {})
 ```
 
 
 ### delete (tableName, where)
 ```js
-crate.delete ('mytable', "columnName1='value1'").success (console.log)
+crate.delete('mytable', "columnName1='value1'").then(() => {})
 ```
 
 ## BLOB's
@@ -96,31 +113,31 @@ crate.delete ('mytable', "columnName1='value1'").success (console.log)
 
 ### createBlob (tableName, replicas, shards)
 ```
-crate.createBlobTable ('images',1,3).success(console.log).error(console.log)
+crate.createBlobTable('images',1,3).then((res) => {}).catch((e) => {})
 ```
 ### insertBlob (tableName, buffer)
 ```js
-crate.insertBlob ('images', buffer).success (console.log)
+crate.insertBlob('images', buffer).then((res) => {});
 ```
 ### insertBlobFile (tableName, fileName)
 The callback returns the required haskey to get the image with getBlob.
 
 ```js
-crate.insertBlobFile ('images', './test.png').success (function (hashKey) {
+crate.insertBlobFile ('images', './test.png').then((hashKey) => {
     console.log ("Assigned hashkey": hashKey)
 })
 ```
 ### getBlob (tableName, hashKey)
 The callback return a buffer as result - callback (buffer)
 ```js
-crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09').success (function (data) {
+crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09').then((data) => {
   	fs.writeFileSync ('test.gif', data)
-})
+});
 ```
 
 # Use in Webbrowsers JavaScript
 
-The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using [browserify](https://github.com/substack/node-browserify). 
+The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using [browserify](https://github.com/substack/node-browserify).
 ```
 npm run bundle
 ```
@@ -131,18 +148,15 @@ The resulting automatically generated using drone.io. You can refer to this file
 <script src="https://drone.io/github.com/megastef/node-crate/files/bundle.js"></script>
 ```
 
-Then you might be able to use it inside of an CRATE-Plug-In HTML page: 
+Then you might be able to use it inside of an CRATE-Plug-In HTML page:
 
 ```
 <script src="bundle.js"></script>
 <script>
   var crate = require('node-crate');
-  crate.execute ('select * from tweets limit 10').success (window.alert)
+  crate.execute ('select * from tweets limit 10').then(window.alert)
 </script>
 ```
-
-## Roadmap
-1. We plan to support in future waterline.js as ORM on top of this base driver. 
 
 ## License
 

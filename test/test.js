@@ -1,232 +1,252 @@
+/* eslint-disable no-alert, no-console */
 'use strict'
 /* global describe, it */
-var expect = require('expect')
+const expect = require('expect')
 // var Lab = require("lab"),
-var crate = require('../')
+const crate = require('../')
 // describe = Lab.experiment,
 // it = Lab.test,
 // expect = Lab.expect
 // Why only 50? the default setting in crate ...
 // EsThreadPoolExecutor[bulk, queue capacity = 50]
 // for more than 50 inserts at once use Bulk insert or increase queue in Crate
-var docsToInsert = 50
-crate.connect('http://127.0.0.1:4200')
+const docsToInsert = 50
+
+crate.connect(process.env.CRATE_URL || 'http://127.0.0.1:4200')
+
+const blobTableName = 'blob_test_3'
+const tableName = 'NodeCrateTest_3'
 
 describe('#node-crate', function () {
-  it('Create blob table', function (done) {
-    this.timeout = 30000
-    crate.createBlobTable('blob_test', 0, 1)
-      .success(function () {
-        // expect(res.rowcount).toBe(1)
-        // console.log(res)
-        done()
-      })
-      .error(function (err) {
-        console.log(err)
-        done(err)
-      })
+  this.slow(15000)
+
+  it('Create blob table', (done) => {
+    crate.createBlobTable(blobTableName, 0, 1)
+        .then(() => {
+            // expect(res.rowcount).toBe(1)
+            // console.log(res)
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
   })
 
-  it('Create table', function (done) {
-    var schema = {NodeCrateTest: {id: 'integer primary key', title: 'string'}}
+  it('Create table', (done) => {
+    const schema = {}
+    schema[tableName] = {id: 'integer primary key', title: 'string'}
+
     crate.create(schema)
-      .success(function (res) {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .error(function (err) {
-        done(err)
-      })
+        .then((res) => {
+          expect(res.rowcount).toBe(1)
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
   })
 
-  var hashkey = ''
+  let hashkey = ''
 
-  it('Insert Blob', function (done) {
-    setTimeout(function () {
-      // var buffer = new Buffer([1,3,4])
-      crate.insertBlobFile('blob_test', './lib/index.js')
-        .success(function (res) {
-          // console.log(res)
-          // expect(res.rowcount).toBe(1)
-          hashkey = res
-          done()
-        })
-        .error(function (err) {
-          console.log(err)
-          // crate returned an error, but it does not mean that the driver behaves wrong.
-          // In this case we get HTTP 500 only on drone.io, we need to check why
-          done()
-        })
+  it('Insert Blob', (done) => {
+    setTimeout(() => {
+            // var buffer = new Buffer([1,3,4])
+      crate.insertBlobFile(blobTableName, './lib/index.js')
+            .then((res) => {
+                // console.log(res)
+                // expect(res.rowcount).toBe(1)
+              hashkey = res
+              done()
+            })
+            .catch((err) => {
+              console.log(err)
+                // crate returned an error, but it does not mean that the driver behaves wrong.
+                // In this case we get HTTP 500 only on drone.io, we need to check why
+              done()
+            })
     }, 100)
   })
 
-  it('Insert', function (done) {
-    setTimeout(function () {
-      crate.insert('NodeCrateTest', {
+  it('Insert', (done) => {
+    setTimeout(() => {
+      crate.insert(tableName, {
         id: '1',
         title: 'Title',
         numberVal: 42
       })
-        .success(function (res) {
-          expect(res.rowcount).toBe(1)
-          done()
-        })
-        .error(function (err) {
-          done(err)
-        })
+            .then((res) => {
+              expect(res.rowcount).toBe(1)
+              done()
+            })
+            .catch((err) => {
+              done(err)
+            })
     }, 500)
   })
 
-  it('Insert Many', function (done) {
-    setTimeout(function () {
-      var success = 0
-      var errorReported = false
-      var longTitle = 'A long title to generate larger chunks ...'
-      for (var k = 0; k < 5; k++) {
+  it('Insert Many', (done) => {
+    setTimeout(() => {
+      let success = 0
+      let errorReported = false
+      let longTitle = 'A long title to generate larger chunks ...'
+
+      for (let k = 0; k < 5; ++k) {
         longTitle += longTitle
       }
-      for (var i = 0; i < docsToInsert; i++) {
-        crate.insert('NodeCrateTest', {
+
+      for (let i = 0; i < docsToInsert; ++i) {
+        crate.insert(tableName, {
           id: i + 100,
           title: longTitle,
           numberVal: 42
         })
-          .success(function (res) {
-            success++
-            if (success === docsToInsert) {
-              done()
-            }
-          })
-          .error(function (err) {
-            console.log(err)
-            if (!errorReported) {
-              errorReported = true
-              done(err)
-            }
+                .then(() => {
+                  success++
 
-          })
+                  if (success === docsToInsert) {
+                    done()
+                  }
+                })
+                .catch((err) => {
+                  console.log(err)
+                  if (!errorReported) {
+                    errorReported = true
+                    done(err)
+                  }
+                })
       }
     }, 500)
   })
 
-  it('Insert Bulk', function (done) {
-      setTimeout(function () {
-        var success = 0
-        var errorReported = false
-        var title = 'A title'
-        var bulkArgs = [];
-        for (var i = 0; i < docsToInsert; i++) {
-          bulkArgs[i] = [
-            i + 1000,
-            title,
-            42
-          ]
-        }
-        crate.executeBulk('INSERT INTO NodeCrateTest (id, title, "numberVal") Values (?, ?, ?)', bulkArgs)
-        .success(function (res) {
-            done()
-        })
-        .error(function (err) {
-          console.log(err)
-          if (!errorReported) {
-            errorReported = true
-            done(err)
-          }
+  it('Insert Bulk', (done) => {
+    setTimeout(() => {
+      let errorReported = false
+      const title = 'A title'
+      const bulkArgs = []
 
-        })
+      for (let i = 0; i < docsToInsert; ++i) {
+        bulkArgs[i] = [
+          i + 1000,
+          title,
+          42
+        ]
+      }
 
-      }, 500)
+      crate.executeBulk(`INSERT INTO ${tableName} ("id","title","numberVal") Values (?, ?, ?)`, bulkArgs)
+            .then(() => {
+              done()
+            })
+            .catch((err) => {
+              if (!errorReported) {
+                errorReported = true
+                done(err)
+              }
+            })
+    }, 500)
   })
 
-  it('Select', function (done) {
-    setTimeout(function () {
-      crate.execute('SELECT * FROM NodeCrateTest limit ' + docsToInsert)
-        .success(function (res) {
-          expect(res.rowcount).toBe(docsToInsert)
-          done()
-        })
-        .error(function (err) {
-          done(err)
-        })
+  it('Select', (done) => {
+    setTimeout(() => {
+      crate.execute(`SELECT * FROM ${tableName} limit ${docsToInsert}`)
+            .then((res) => {
+              expect(res.rowcount).toBe(docsToInsert)
+              done()
+            })
+            .catch((err) => {
+              done(err)
+            })
     }, 10000)
   })
 
-  it('Update', function (done) {
-    setTimeout(function () {
-      crate.update('NodeCrateTest', {
+  it('Update', (done) => {
+    setTimeout(() => {
+      crate.update(tableName, {
         title: 'TitleNew'
       }, 'id=1')
-        .success(function (res) {
-          expect(res.rowcount).toBe(1)
-          done()
-        })
-        .error(function (err) {
-          done(err)
-        })
+            .then((res) => {
+              expect(res.rowcount).toBe(1)
+              done()
+            })
+            .catch((err) => {
+              done(err)
+            })
     }, 2000)
   })
 
-  it('Select after update', function (done) {
-    setTimeout(function () {
-      crate.execute('SELECT * FROM NodeCrateTest where id=1 limit 100')
-        .success(function (res) {
-          expect(res.json[0].title).toBe('TitleNew')
-          expect(res.json[0].numberVal).toBe(42)
-          done()
-        })
-        .error(function (err) {
-          console.log(err)
-          done(err)
-        })
+  it('Select after update', (done) => {
+    setTimeout(() => {
+      crate.execute(`SELECT * FROM ${tableName} where id=1 limit 100`)
+            .then((res) => {
+              expect(res.json[0].title).toBe('TitleNew')
+              expect(res.json[0].numberVal).toBe(42)
+              done()
+            })
+            .catch((err) => {
+              done(err)
+            })
     }, 4000)
   })
 
-  it('getBlob', function (done) {
+  it('getBlob', (done) => {
     crate.getBlob('blobtest', hashkey)
-      .success(function () {
-        // expect(data.toString()).toBe('1')
-        // hashkey = res
-        // WE GET THIS "[.blob_blobtest] missing\n", have to check why, maybe refresh is to high ...
-        // until this is clear, lets pass the test when we get success
-        done()
-      })
-      .error(function (err) {
-        done(err)
-      })
-  })
-
-  it('Delete', function (done) {
-    crate.delete('NodeCrateTest', 'id=1')
-      .success(function (res) {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .error(function (err) {
-        done(err)
-      })
-  })
-
-  it('Drop table', function (done) {
-    crate.drop('NodeCrateTest')
-      .success(function (res) {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .error(function (err) {
-        done(err)
-      })
-  })
-
-  it('Drop Blob Table', function (done) {
-    setTimeout(function () {
-      crate.dropBlobTable('blob_test')
-        .success(function () {
-          // expect(res.rowcount).toBe(1)
+        .then(() => {
+            // expect(data.toString()).toBe('1')
+            // hashkey = res
+            // WE GET THIS "[.blob_blobtest] missing\n", have to check why, maybe refresh is to high ...
+            // until this is clear, lets pass the test when we get success
           done()
         })
-        .error(function (err) {
+        .catch((err) => {
           done(err)
         })
+  })
+
+  it('Delete', (done) => {
+    crate.delete(tableName, 'id=1')
+        .then((res) => {
+          expect(res.rowcount).toBe(1)
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
+  })
+
+  it('Drop table', (done) => {
+    crate.drop(tableName)
+        .then((res) => {
+          expect(res.rowcount).toBe(1)
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
+  })
+
+  it('Drop Blob Table', (done) => {
+    setTimeout(() => {
+      crate.dropBlobTable(blobTableName)
+            .then(() => {
+                // expect(res.rowcount).toBe(1)
+              done()
+            })
+            .catch((err) => {
+              done(err)
+            })
+    }, 6000)
+  })
+
+  it('Drop Blob Table with empty name', (done) => {
+    setTimeout(() => {
+      crate.dropBlobTable()
+            .then(() => {
+                // expect(res.rowcount).toBe(1)
+              done('Should not succeed')
+            })
+            .catch((err) => {
+              expect(err).toBe('Table name is not specified!')
+              done()
+            })
     }, 6000)
   })
 })
