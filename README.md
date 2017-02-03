@@ -29,7 +29,7 @@ We might change this soon.
 
 ## Breaking changes in version 2 / Migration
 
-Node-crate now using ES6 features and is not compatible anymore with node.js version lower than 4.0.0.
+Node-crate now using ES6 features and is not compatible anymore with node.js version lower than 6.0.0.
 
 Package is using native promises, instead of promises implementation by D.js package.
 
