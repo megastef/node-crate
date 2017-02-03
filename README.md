@@ -7,6 +7,7 @@ node-crate
 
 [![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
 &nbsp;[![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+&nbsp;[![bitHound Overall Score](https://www.bithound.io/github/megastef/node-crate/badges/score.svg)](https://www.bithound.io/github/megastef/node-crate)
 
 
 This is an independent node.js driver implementation for CRATE using the _sql endpoint REST API.
