@@ -1,12 +1,10 @@
-/* eslint-disable no-alert, no-console */
 'use strict'
+
 /* global describe, it */
 const expect = require('expect')
-// var Lab = require("lab"),
+
 const crate = require('../')
-// describe = Lab.experiment,
-// it = Lab.test,
-// expect = Lab.expect
+
 // Why only 50? the default setting in crate ...
 // EsThreadPoolExecutor[bulk, queue capacity = 50]
 // for more than 50 inserts at once use Bulk insert or increase queue in Crate
@@ -22,9 +20,8 @@ describe('#node-crate', function () {
 
   it('Create blob table', (done) => {
     crate.createBlobTable(blobTableName, 0, 1)
-      .then(() => {
-          // expect(res.rowcount).toBe(1)
-          // console.log(res)
+      .then((res) => {
+        expect(res.rowcount).toBe(1)
         done()
       })
       .catch((err) => {
@@ -48,21 +45,17 @@ describe('#node-crate', function () {
 
   let hashkey = ''
 
-  it('Insert Blob', (done) => {
+  it('Insert blob', (done) => {
     setTimeout(() => {
-            // var buffer = new Buffer([1,3,4])
+      // var buffer = new Buffer([1,3,4])
       crate.insertBlobFile(blobTableName, './lib/index.js')
         .then((res) => {
-          // console.log(res)
-          // expect(res.rowcount).toBe(1)
+          expect(res.length).toBe(40)
           hashkey = res
           done()
         })
         .catch((err) => {
-          console.log(err)
-          // crate returned an error, but it does not mean that the driver behaves wrong.
-          // In this case we get HTTP 500 only on drone.io, we need to check why
-          done()
+          done(err)
         })
     }, 100)
   })
@@ -84,7 +77,7 @@ describe('#node-crate', function () {
     }, 500)
   })
 
-  it('Insert Many', (done) => {
+  it('Insert many', (done) => {
     setTimeout(() => {
       let success = 0
       let errorReported = false
@@ -108,7 +101,6 @@ describe('#node-crate', function () {
             }
           })
           .catch((err) => {
-            console.log(err)
             if (!errorReported) {
               errorReported = true
               done(err)
@@ -118,7 +110,7 @@ describe('#node-crate', function () {
     }, 500)
   })
 
-  it('Insert Bulk', (done) => {
+  it('Insert bulk', (done) => {
     setTimeout(() => {
       let errorReported = false
       const title = 'A title'
@@ -133,7 +125,8 @@ describe('#node-crate', function () {
       }
 
       crate.executeBulk(`INSERT INTO ${tableName} ("id","title","numberVal") Values (?, ?, ?)`, bulkArgs)
-        .then(() => {
+        .then((res) => {
+          expect(res.results.length).toBe(docsToInsert)
           done()
         })
         .catch((err) => {
@@ -187,13 +180,13 @@ describe('#node-crate', function () {
     }, 4000)
   })
 
-  it('getBlob', (done) => {
+  it('Get blob', (done) => {
     crate.getBlob('blobtest', hashkey)
-      .then(() => {
-          // expect(data.toString()).toBe('1')
-          // hashkey = res
-          // WE GET THIS "[.blob_blobtest] missing\n", have to check why, maybe refresh is to high ...
-          // until this is clear, lets pass the test when we get success
+      .then((res) => {
+        if (!(res instanceof Buffer)) {
+          throw new Error('Should be a buffer')
+        }
+
         done()
       })
       .catch((err) => {
@@ -223,11 +216,11 @@ describe('#node-crate', function () {
       })
   })
 
-  it('Drop Blob Table', (done) => {
+  it('Drop blob table', (done) => {
     setTimeout(() => {
       crate.dropBlobTable(blobTableName)
-        .then(() => {
-            // expect(res.rowcount).toBe(1)
+        .then((res) => {
+          expect(res.rowcount).toBe(1)
           done()
         })
         .catch((err) => {
@@ -236,12 +229,11 @@ describe('#node-crate', function () {
     }, 6000)
   })
 
-  it('Drop Blob Table with empty name', (done) => {
+  it('Drop blob table with empty name', (done) => {
     setTimeout(() => {
       crate.dropBlobTable()
         .then(() => {
-            // expect(res.rowcount).toBe(1)
-          done('Should not succeed')
+          done(new Error('Expects to not succeed.'))
         })
         .catch((err) => {
           expect(err).toBe('Table name is not specified!')

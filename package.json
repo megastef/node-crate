@@ -35,7 +35,7 @@
     "type-of-is": ">= 3.3.x"
   },
   "devDependencies": {
-    "expect": "^1.9.0",
+    "expect": "^1.20.2",
     "mocha": "^3.2.0",
     "standard": "^8.6.0"
   }
