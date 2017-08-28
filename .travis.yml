@@ -10,7 +10,7 @@ services:
   - docker
 
 before_install:
-  - docker pull crate
+  - docker pull crate:1.1.6
   - docker run -d -p 4200:4200 -p 4300:4300 crate
 
 script:
