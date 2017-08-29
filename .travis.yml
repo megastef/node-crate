@@ -4,14 +4,15 @@ language: node_js
 node_js:
   - "node"
   - "6"
-  - "6.1"
+  - "7"
+  - "8"
 
 services:
   - docker
 
 before_install:
-  - docker pull crate:1.1.6
-  - docker run -d -p 4200:4200 -p 4300:4300 crate:1.1.6
+  - docker pull crate:2.1.5
+  - docker run --name crate -d --memory 2g --env CRATE_HEAP_SIZE=1g -p 4200:4200 -p 4300:4300 crate:2.1.5 crate -Ccluster.name=cluster -Clicense.enterprise=false -Cnetwork.host=0.0.0.0
 
 script:
   - npm test
