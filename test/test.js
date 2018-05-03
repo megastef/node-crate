@@ -43,6 +43,45 @@ describe('#node-crate', function () {
       })
   })
 
+  it('Create table if not exists - table exists', (done) => {
+    const schema = {}
+    schema[tableName] = {id: 'integer primary key', title: 'string'}
+
+    crate.createIfNotExists(schema)
+      .then((res) => {
+        expect(res.rowcount).toBe(0)
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
+  })
+
+  it('Drop table to create again', (done) => {
+    crate.drop(tableName)
+      .then((res) => {
+        expect(res.rowcount).toBe(1)
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
+  })
+
+  it('Create table if not exists - table does not exist', (done) => {
+    const schema = {}
+    schema[tableName] = {id: 'integer primary key', title: 'string'}
+
+    crate.createIfNotExists(schema)
+      .then((res) => {
+        expect(res.rowcount).toBe(1)
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
+  })
+
   let hashkey = ''
 
   it('Insert blob', (done) => {
