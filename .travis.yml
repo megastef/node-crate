@@ -11,8 +11,9 @@ services:
   - docker
 
 before_install:
-  - docker pull crate:2.1.5
+  - docker pull crate:2.3
   - docker run --name crate -d --memory 2g --env CRATE_HEAP_SIZE=1g -p 4200:4200 -p 4300:4300 crate:2.1.5 crate -Ccluster.name=cluster -Clicense.enterprise=false -Cnetwork.host=0.0.0.0
 
 script:
+  - sleep 10 
   - npm test
