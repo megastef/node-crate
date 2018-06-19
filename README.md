@@ -1,16 +1,13 @@
 node-crate
 ==========
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/megastef/node-crate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![NPM](https://nodei.co/npm/node-crate.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/node-crate/)
 
 
-[![Dependency Status](https://gemnasium.com/megastef/node-crate.png)](https://gemnasium.com/megastef/node-crate)
+[![Known Vulnerabilities](https://snyk.io/test/github/megastef/node-crate/badge.svg)](https://snyk.io/test/github/megastef/node-crate)
 &nbsp;[![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
-&nbsp;[![bitHound Overall Score](https://www.bithound.io/github/megastef/node-crate/badges/score.svg)](https://www.bithound.io/github/megastef/node-crate)
 &nbsp;[![Build Status](https://travis-ci.org/megastef/node-crate.svg?branch=master)](https://travis-ci.org/megastef/node-crate.svg?branch=master)
-
-
+&nbsp;[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/megastef/node-crate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This is an independent node.js driver implementation for CRATE using the _sql endpoint REST API.
 
