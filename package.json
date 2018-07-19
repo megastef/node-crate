@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "standard --format lib/*.js && mocha -t 20000",
-    "bundle": "browserify -r ./lib/index.js:node-crate > bundle.js"
+    "bundle": "browserify -r ./lib/index.js:node-crate > bundle.js",
+    "fix": "standard --fix lib/*.js"
   },
   "repository": {
     "type": "git",

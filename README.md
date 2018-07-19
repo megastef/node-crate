@@ -135,6 +135,21 @@ crate.getBlob ('f683e0c9abcbf518704af66c6195bfd3ff121f09').then((data) => {
 });
 ```
 
+# Connect to different instances or clusters
+
+Example connect to localhost and to a crate hosted in a cloud enviroment with authentication
+
+```js
+
+const crateLocal = require('node-crate');
+const crateCloud = crateLocal.getNewInstance();
+
+crateLocal.connect('http://localhost:4200');
+crateCloud.connect('https://user:password@cratecloud.com:4200');
+
+```
+
+
 # Use in Webbrowsers JavaScript
 
 The intention was to use it with node.js on the server side, but it is possible to make it available in a web browser using [browserify](https://github.com/substack/node-browserify).
