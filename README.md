@@ -85,10 +85,16 @@ crate.execute("select * from tweets where text like ?", ['%crate%']).then((res) 
 crate.insert('mytable', {columnName1: 'value1', columnName2: 'value2'}).then((res) => {})
 ```
 
-### create (tableName, where)
+### create (schema)
 ```js
-var scheme = {book: {id: 'integer primary key', title: 'string', author: 'string'}}
-crate.create(scheme).then(() => {})
+var schema = {book: {id: 'integer primary key', title: 'string', author: 'string'}}
+crate.create(schema).then(() => {})
+```
+
+### createIfNotExists (schema)
+```js
+var schema = {book: {id: 'integer primary key', title: 'string', author: 'string'}}
+crate.createIfNotExists(schema).then(() => {})
 ```
 
 ### drop (tableName)
@@ -96,12 +102,10 @@ crate.create(scheme).then(() => {})
 crate.drop('mytable').then(() => {})
 ```
 
-
 ### update (tableName, jsonEntity, whereClause)
 ```js
 crate.update('mytable', {columnName1: 'value1', columnName2: 'value2'}, 'columnName3=5').then(() => {})
 ```
-
 
 ### delete (tableName, where)
 ```js
@@ -110,15 +114,16 @@ crate.delete('mytable', "columnName1='value1'").then(() => {})
 
 ## BLOB's
 
-
-### createBlob (tableName, replicas, shards)
+### createBlobTable (tableName, replicas, shards)
 ```
 crate.createBlobTable('images',1,3).then((res) => {}).catch((e) => {})
 ```
+
 ### insertBlob (tableName, buffer)
 ```js
 crate.insertBlob('images', buffer).then((res) => {});
 ```
+
 ### insertBlobFile (tableName, fileName)
 The callback returns the required haskey to get the image with getBlob.
 
@@ -127,6 +132,7 @@ crate.insertBlobFile ('images', './test.png').then((hashKey) => {
     console.log ("Assigned hashkey": hashKey)
 })
 ```
+
 ### getBlob (tableName, hashKey)
 The callback return a buffer as result - callback (buffer)
 ```js
