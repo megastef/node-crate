@@ -1,7 +1,7 @@
 {
   "name": "node-crate",
   "version": "2.0.6",
-  "description": "Node.js SQL-driver for CRATE data store (crate.io)",
+  "description": "Node.js SQL-driver for CrateDB (crate.io)",
   "main": "lib/index.js",
   "scripts": {
     "test": "standard --format lib/*.js && mocha -t 20000",
@@ -14,6 +14,7 @@
   },
   "keywords": [
     "CRATE",
+    "CrateDB",
     "crate.io",
     "sql",
     "driver",
@@ -36,8 +37,8 @@
     "type-of-is": ">= 3.3.x"
   },
   "devDependencies": {
-    "expect": "^1.20.2",
-    "mocha": "^3.2.0",
-    "standard": "^8.6.0"
+    "expect": "^29.5.0",
+    "mocha": "^10.2.0",
+    "standard": "^17.0.0"
   }
 }

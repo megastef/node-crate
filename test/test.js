@@ -1,7 +1,7 @@
 'use strict'
 
 /* global describe, it */
-const expect = require('expect')
+const {expect} = require('expect')
 
 const crate = require('../')
 
@@ -18,266 +18,140 @@ const tableName = 'NodeCrateTest_3'
 describe('#node-crate', function () {
   this.slow(15000)
 
-  it('Create blob table', (done) => {
-    crate.createBlobTable(blobTableName, 0, 1)
-      .then((res) => {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
-  })
+  it('should create blob table', async () => {
+    const res = await crate.createBlobTable(blobTableName, 0, 1)
+    expect(res.rowcount).toBe(1)
+  });
 
-  it('Create table', (done) => {
+  it('should create table', async () => {
     const schema = {}
-    schema[tableName] = {id: 'integer primary key', title: 'string'}
+    schema[tableName] = { id: 'integer primary key', title: 'string', numberVal: 'integer' }
 
-    crate.create(schema)
-      .then((res) => {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
-  })
+    const res = await crate.create(schema)
+    expect(res.rowcount).toBe(1)
+  });
 
-  it('Create table if not exists - table exists', (done) => {
+  it('should create table if not exists - table exists', async () => {
     const schema = {}
-    schema[tableName] = {id: 'integer primary key', title: 'string'}
+    schema[tableName] = { id: 'integer primary key', title: 'string', numberVal: 'integer' }
 
-    crate.createIfNotExists(schema)
-      .then((res) => {
-        expect(res.rowcount).toBe(0)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
+    const res = await crate.createIfNotExists(schema)
+    expect(res.rowcount).toBe(0)
   })
 
-  it('Drop table to create again', (done) => {
-    crate.drop(tableName)
-      .then((res) => {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
+  it('should drop table to create again', async () => {
+    const res = await crate.drop(tableName)
+    expect(res.rowcount).toBe(1)
   })
 
-  it('Create table if not exists - table does not exist', (done) => {
+  it('should create table if not exists - table does not exist', async () => {
     const schema = {}
-    schema[tableName] = {id: 'integer primary key', title: 'string'}
+    schema[tableName] = { id: 'integer primary key', title: 'string', numberVal: 'integer' }
 
-    crate.createIfNotExists(schema)
-      .then((res) => {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
+    const res = await crate.createIfNotExists(schema)
+    expect(res.rowcount).toBe(1)
   })
 
   let hashkey = ''
 
-  it('Insert blob', (done) => {
-    setTimeout(() => {
-      // var buffer = new Buffer([1,3,4])
-      crate.insertBlobFile(blobTableName, './lib/index.js')
-        .then((res) => {
-          expect(res.length).toBe(40)
-          hashkey = res
-          done()
-        })
-        .catch((err) => {
-          done(err)
-        })
-    }, 100)
-  })
+  it('should insert blob', async () => {
+    const res = await crate.insertBlobFile(blobTableName, './lib/index.js');
+    expect(res.length).toBe(40);
+    hashkey = res;
+  });
 
-  it('Insert', (done) => {
-    setTimeout(() => {
-      crate.insert(tableName, {
-        id: '1',
-        title: 'Title',
+  it('should insert', async () => {
+    const res = await crate.insert(tableName, {
+      id: '1',
+      title: 'Title',
+      numberVal: 42
+    });
+    expect(res.rowcount).toBe(1);
+  });
+
+  it('should insert many', async () => {
+    let success = 0
+    let errorReported = false
+    let longTitle = 'A long title to generate larger chunks ...'
+
+    for (let k = 0; k < 5; ++k) {
+      longTitle += longTitle
+    }
+
+    for (let i = 0; i < docsToInsert; ++i) {
+      await crate.insert(tableName, {
+        id: i + 100,
+        title: longTitle,
         numberVal: 42
       })
-        .then((res) => {
-          expect(res.rowcount).toBe(1)
-          done()
-        })
-        .catch((err) => {
-          done(err)
-        })
-    }, 500)
-  })
-
-  it('Insert many', (done) => {
-    setTimeout(() => {
-      let success = 0
-      let errorReported = false
-      let longTitle = 'A long title to generate larger chunks ...'
-
-      for (let k = 0; k < 5; ++k) {
-        longTitle += longTitle
-      }
-
-      for (let i = 0; i < docsToInsert; ++i) {
-        crate.insert(tableName, {
-          id: i + 100,
-          title: longTitle,
-          numberVal: 42
-        })
-          .then(() => {
-            success++
-
-            if (success === docsToInsert) {
-              done()
-            }
-          })
-          .catch((err) => {
-            if (!errorReported) {
-              errorReported = true
-              done(err)
-            }
-          })
-      }
-    }, 500)
-  })
-
-  it('Insert bulk', (done) => {
-    setTimeout(() => {
-      let errorReported = false
-      const title = 'A title'
-      const bulkArgs = []
-
-      for (let i = 0; i < docsToInsert; ++i) {
-        bulkArgs[i] = [
-          i + 1000,
-          title,
-          42
-        ]
-      }
-
-      crate.executeBulk(`INSERT INTO ${tableName} ("id","title","numberVal") Values (?, ?, ?)`, bulkArgs)
-        .then((res) => {
-          expect(res.results.length).toBe(docsToInsert)
-          done()
-        })
-        .catch((err) => {
-          if (!errorReported) {
-            errorReported = true
-            done(err)
-          }
-        })
-    }, 500)
-  })
-
-  it('Select', (done) => {
-    setTimeout(() => {
-      crate.execute(`SELECT * FROM ${tableName} limit ${docsToInsert}`)
-        .then((res) => {
-          expect(res.rowcount).toBe(docsToInsert)
-          done()
-        })
-        .catch((err) => {
-          done(err)
-        })
-    }, 10000)
-  })
-
-  it('Update', (done) => {
-    setTimeout(() => {
-      crate.update(tableName, {
-        title: 'TitleNew'
-      }, 'id=1')
-        .then((res) => {
-          expect(res.rowcount).toBe(1)
-          done()
-        })
-        .catch((err) => {
-          done(err)
-        })
-    }, 2000)
-  })
-
-  it('Select after update', (done) => {
-    setTimeout(() => {
-      crate.execute(`SELECT * FROM ${tableName} where id=1 limit 100`)
-        .then((res) => {
-          expect(res.json[0].title).toBe('TitleNew')
-          expect(res.json[0].numberVal).toBe(42)
-          done()
-        })
-        .catch((err) => {
-          done(err)
-        })
-    }, 4000)
-  })
-
-  it('Get blob', (done) => {
-    crate.getBlob('blobtest', hashkey)
-      .then((res) => {
-        if (!(res instanceof Buffer)) {
-          throw new Error('Should be a buffer')
-        }
-
-        done()
+      .then(() => {
+        success++;
       })
       .catch((err) => {
-        done(err)
-      })
-  })
+        throw err;
+      });
+    }
+    expect(success).toBe(docsToInsert);
+  });
 
-  it('Delete', (done) => {
-    crate.delete(tableName, 'id=1')
-      .then((res) => {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
-  })
+  it('should insert bulk documents', async () => {
+    const title = 'A title';
+    const bulkArgs = [];
 
-  it('Drop table', (done) => {
-    crate.drop(tableName)
-      .then((res) => {
-        expect(res.rowcount).toBe(1)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
-  })
+    for (let i = 0; i < docsToInsert; ++i) {
+      bulkArgs[i] = [i + 1000, title, 42];
+    }
 
-  it('Drop blob table', (done) => {
-    setTimeout(() => {
-      crate.dropBlobTable(blobTableName)
-        .then((res) => {
-          expect(res.rowcount).toBe(1)
-          done()
-        })
-        .catch((err) => {
-          done(err)
-        })
-    }, 6000)
-  })
+    const res = await crate.executeBulk(`INSERT INTO ${tableName} ("id","title","numberVal") Values (?, ?, ?)`, bulkArgs);
+    expect(res.results.length).toBe(docsToInsert);
+  });
 
-  it('Drop blob table with empty name', (done) => {
-    setTimeout(() => {
-      crate.dropBlobTable()
-        .then(() => {
-          done(new Error('Expects to not succeed.'))
-        })
-        .catch((err) => {
-          expect(err).toBe('Table name is not specified!')
-          done()
-        })
-    }, 6000)
-  })
+  it('should select', async () => {
+    await crate.execute(`REFRESH TABLE ${tableName}`);
+    const res = await crate.execute(`SELECT * FROM ${tableName} limit ${docsToInsert}`);
+    expect(res.rowcount).toBe(docsToInsert);
+  });
+
+  it('should update', async () => {
+    const res = await crate.update(tableName, {
+      title: 'TitleNew'
+    }, 'id=1');
+    expect(res.rowcount).toBe(1);
+  });
+
+  it('should select after update', async () => {
+    await crate.execute(`REFRESH TABLE ${tableName}`);
+    const res = await crate.execute(`SELECT * FROM ${tableName} where id=1 limit 100`);
+    expect(res.json[0].title).toBe('TitleNew');
+    expect(res.json[0].numberVal).toBe(42);
+  });
+
+  it('should get blob', async () => {
+    const res = await crate.getBlob('blobtest', hashkey);
+    expect(res instanceof Buffer).toBe(true);
+  });
+
+  it('should delete', async () => {
+    const res = await crate.delete(tableName, 'id=1');
+    await crate.execute(`REFRESH TABLE ${tableName}`);
+    expect(res.rowcount).toBe(1);
+  });
+
+  it('should drop table', async () => {
+    const res = await crate.drop(tableName);
+    expect(res.rowcount).toBe(1);
+  });
+
+  it('should drop blob table', async () => {
+    const res = await crate.dropBlobTable(blobTableName);
+    expect(res.rowcount).toBe(1);
+  });
+
+  it('should fail to drop blob table with empty name', async () => {
+    try {
+      await crate.dropBlobTable();
+    } catch (err) {
+      expect(err.message).toBe('Table name is not specified!');
+    }
+  });
 })
